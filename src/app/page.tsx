@@ -1,6 +1,7 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
-import { Truck, Package, MapPin, Users, ArrowRight } from 'lucide-react'
+import { Package, MapPin, Users, ArrowRight } from 'lucide-react'
 
 export default function HomePage() {
   return (
@@ -9,9 +10,13 @@ export default function HomePage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
         <div className="text-center">
           <div className="flex justify-center mb-8">
-            <div className="p-4 bg-white/10 rounded-2xl backdrop-blur">
-              <Truck className="h-16 w-16 text-white" />
-            </div>
+            <Image
+              src="/logo.png"
+              alt="FreightFlow Logo"
+              width={120}
+              height={120}
+              className="rounded-2xl"
+            />
           </div>
           <h1 className="text-4xl sm:text-6xl font-bold text-white mb-6">
             FreightFlow

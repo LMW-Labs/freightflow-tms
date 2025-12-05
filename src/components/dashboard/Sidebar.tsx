@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
@@ -41,10 +42,14 @@ export function Sidebar() {
     <div className="flex h-full flex-col">
       {/* Logo */}
       <div className="flex h-16 items-center gap-2 px-6 border-b">
-        <div className="p-2 bg-blue-600 rounded-lg">
-          <Truck className="h-5 w-5 text-white" />
-        </div>
-        <span className="font-bold text-lg">FreightTMS</span>
+        <Image
+          src="/logo.png"
+          alt="FreightFlow"
+          width={32}
+          height={32}
+          className="rounded"
+        />
+        <span className="font-bold text-lg">FreightFlow</span>
       </div>
 
       {/* Navigation */}
