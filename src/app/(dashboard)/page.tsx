@@ -83,7 +83,7 @@ export default async function DashboardPage() {
         </div>
         <div className="flex gap-3">
           <Button asChild>
-            <Link href="/dashboard/loads/new">
+            <Link href="/loads/new">
               <Plus className="h-4 w-4 mr-2" />
               New Load
             </Link>
@@ -117,7 +117,7 @@ export default async function DashboardPage() {
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Recent Loads</CardTitle>
           <Button variant="ghost" size="sm" asChild>
-            <Link href="/dashboard/loads">
+            <Link href="/loads">
               View all
               <ArrowRight className="h-4 w-4 ml-2" />
             </Link>
@@ -129,7 +129,7 @@ export default async function DashboardPage() {
               {recentLoads.map((load) => (
                 <Link
                   key={load.id}
-                  href={`/dashboard/loads/${load.id}`}
+                  href={`/loads/${load.id}`}
                   className="flex items-center justify-between p-4 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                 >
                   <div className="flex-1 min-w-0">
@@ -162,7 +162,7 @@ export default async function DashboardPage() {
               <Package className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No loads yet</p>
               <Button asChild className="mt-4">
-                <Link href="/dashboard/loads/new">Create your first load</Link>
+                <Link href="/loads/new">Create your first load</Link>
               </Button>
             </div>
           )}

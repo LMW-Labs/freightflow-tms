@@ -32,23 +32,21 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Protected routes - these use (dashboard) route group so actual paths don't include /dashboard
-  const protectedPaths = ['/loads', '/customers', '/carriers', '/tracking', '/team']
-  const isProtectedPath = protectedPaths.some(path =>
+  // Public routes that don't require auth
+  const publicPaths = ['/login', '/welcome', '/portal', '/track', '/driver', '/invite']
+  const isPublicPath = publicPaths.some(path =>
     request.nextUrl.pathname === path || request.nextUrl.pathname.startsWith(path + '/')
   )
 
-  // Also protect root dashboard page
-  const isDashboardRoot = request.nextUrl.pathname === '/' && !request.nextUrl.pathname.startsWith('/portal') && !request.nextUrl.pathname.startsWith('/track') && !request.nextUrl.pathname.startsWith('/driver')
-
-  if ((isProtectedPath || isDashboardRoot) && !user) {
+  // If not logged in and accessing protected route, redirect to welcome
+  if (!user && !isPublicPath) {
     const url = request.nextUrl.clone()
-    url.pathname = '/login'
+    url.pathname = '/welcome'
     return NextResponse.redirect(url)
   }
 
-  // Redirect logged in users away from login page to root (which shows dashboard)
-  if (request.nextUrl.pathname === '/login' && user) {
+  // Redirect logged in users away from login/welcome page to dashboard
+  if (user && (request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/welcome')) {
     const url = request.nextUrl.clone()
     url.pathname = '/'
     return NextResponse.redirect(url)
