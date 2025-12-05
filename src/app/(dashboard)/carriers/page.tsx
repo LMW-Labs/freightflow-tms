@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Plus } from 'lucide-react'
+import { Plus, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 
 export default async function CarriersPage() {
@@ -16,7 +16,10 @@ export default async function CarriersPage() {
 
   const { data: carriers } = await supabase
     .from('carriers')
-    .select('*')
+    .select(`
+      *,
+      drivers(count)
+    `)
     .order('company_name')
 
   return (
@@ -48,16 +51,18 @@ export default async function CarriersPage() {
               <TableHead>MC Number</TableHead>
               <TableHead className="hidden md:table-cell">DOT Number</TableHead>
               <TableHead className="hidden md:table-cell">Contact</TableHead>
-              <TableHead className="hidden lg:table-cell">Email</TableHead>
-              <TableHead className="hidden lg:table-cell">Phone</TableHead>
+              <TableHead className="hidden lg:table-cell">Drivers</TableHead>
+              <TableHead></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {carriers && carriers.length > 0 ? (
               carriers.map((carrier) => (
-                <TableRow key={carrier.id}>
+                <TableRow key={carrier.id} className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800">
                   <TableCell className="font-medium">
-                    {carrier.company_name}
+                    <Link href={`/carriers/${carrier.id}`} className="text-blue-600 hover:underline">
+                      {carrier.company_name}
+                    </Link>
                   </TableCell>
                   <TableCell>{carrier.mc_number || '-'}</TableCell>
                   <TableCell className="hidden md:table-cell">
@@ -67,10 +72,12 @@ export default async function CarriersPage() {
                     {carrier.contact_name || '-'}
                   </TableCell>
                   <TableCell className="hidden lg:table-cell">
-                    {carrier.contact_email || '-'}
+                    {(carrier.drivers as { count: number }[])?.[0]?.count || 0} drivers
                   </TableCell>
-                  <TableCell className="hidden lg:table-cell">
-                    {carrier.contact_phone || '-'}
+                  <TableCell>
+                    <Link href={`/carriers/${carrier.id}`}>
+                      <ChevronRight className="h-5 w-5 text-gray-400" />
+                    </Link>
                   </TableCell>
                 </TableRow>
               ))
