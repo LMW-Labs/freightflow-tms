@@ -11,6 +11,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Plus, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
+import { InviteCustomerUserDialog } from './InviteCustomerUserDialog'
 
 export default async function CustomersPage() {
   const supabase = await createClient()
@@ -96,6 +97,10 @@ export default async function CustomersPage() {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
+                      <InviteCustomerUserDialog
+                        customerId={customer.id}
+                        customerName={customer.company_name}
+                      />
                       <Button variant="ghost" size="sm" asChild>
                         <Link href={`/portal/${customer.slug}`} target="_blank">
                           <ExternalLink className="h-4 w-4" />

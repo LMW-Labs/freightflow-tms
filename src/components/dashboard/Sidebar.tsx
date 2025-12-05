@@ -14,6 +14,7 @@ import {
   LogOut,
   Menu,
   X,
+  UserPlus,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useState } from 'react'
@@ -24,6 +25,7 @@ const navigation = [
   { name: 'Customers', href: '/dashboard/customers', icon: Users },
   { name: 'Carriers', href: '/dashboard/carriers', icon: Truck },
   { name: 'Live Tracking', href: '/dashboard/tracking', icon: MapPin },
+  { name: 'Team', href: '/dashboard/team', icon: UserPlus },
 ]
 
 export function Sidebar() {
