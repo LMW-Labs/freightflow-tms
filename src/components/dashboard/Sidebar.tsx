@@ -20,12 +20,12 @@ import { Button } from '@/components/ui/button'
 import { useState } from 'react'
 
 const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Loads', href: '/dashboard/loads', icon: Package },
-  { name: 'Customers', href: '/dashboard/customers', icon: Users },
-  { name: 'Carriers', href: '/dashboard/carriers', icon: Truck },
-  { name: 'Live Tracking', href: '/dashboard/tracking', icon: MapPin },
-  { name: 'Team', href: '/dashboard/team', icon: UserPlus },
+  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+  { name: 'Loads', href: '/loads', icon: Package },
+  { name: 'Customers', href: '/customers', icon: Users },
+  { name: 'Carriers', href: '/carriers', icon: Truck },
+  { name: 'Live Tracking', href: '/tracking', icon: MapPin },
+  { name: 'Team', href: '/team', icon: UserPlus },
 ]
 
 export function Sidebar() {

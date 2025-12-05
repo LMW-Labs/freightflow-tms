@@ -32,22 +32,25 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Protected routes
-  const protectedPaths = ['/dashboard']
+  // Protected routes - these use (dashboard) route group so actual paths don't include /dashboard
+  const protectedPaths = ['/loads', '/customers', '/carriers', '/tracking', '/team']
   const isProtectedPath = protectedPaths.some(path =>
-    request.nextUrl.pathname.startsWith(path)
+    request.nextUrl.pathname === path || request.nextUrl.pathname.startsWith(path + '/')
   )
 
-  if (isProtectedPath && !user) {
+  // Also protect root dashboard page
+  const isDashboardRoot = request.nextUrl.pathname === '/' && !request.nextUrl.pathname.startsWith('/portal') && !request.nextUrl.pathname.startsWith('/track') && !request.nextUrl.pathname.startsWith('/driver')
+
+  if ((isProtectedPath || isDashboardRoot) && !user) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
   }
 
-  // Redirect logged in users away from login page
+  // Redirect logged in users away from login page to root (which shows dashboard)
   if (request.nextUrl.pathname === '/login' && user) {
     const url = request.nextUrl.clone()
-    url.pathname = '/dashboard'
+    url.pathname = '/'
     return NextResponse.redirect(url)
   }
 
