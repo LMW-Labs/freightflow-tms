@@ -48,7 +48,7 @@ export default async function CustomersPage() {
           </p>
         </div>
         <Button asChild>
-          <Link href="/dashboard/customers/new">
+          <Link href="/customers/new">
             <Plus className="h-4 w-4 mr-2" />
             Add Customer
           </Link>

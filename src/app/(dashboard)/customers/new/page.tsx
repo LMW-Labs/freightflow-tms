@@ -8,13 +8,23 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
-import { ArrowLeft, Loader2 } from 'lucide-react'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { ArrowLeft, Loader2, CheckCircle, Copy, ExternalLink, Mail, PartyPopper } from 'lucide-react'
 import Link from 'next/link'
 
 export default function NewCustomerPage() {
   const router = useRouter()
   const supabase = createClient()
   const [loading, setLoading] = useState(false)
+  const [showSuccess, setShowSuccess] = useState(false)
+  const [createdCustomer, setCreatedCustomer] = useState<{ id: string; slug: string; company_name: string } | null>(null)
+  const [copied, setCopied] = useState(false)
 
   const [formData, setFormData] = useState({
     company_name: '',
@@ -68,7 +78,7 @@ export default function NewCustomerPage() {
         formData.slug = `${formData.slug}-${Date.now()}`
       }
 
-      const { error } = await supabase.from('customers').insert({
+      const { data: newCustomer, error } = await supabase.from('customers').insert({
         organization_id: userData.organization_id,
         company_name: formData.company_name,
         slug: formData.slug,
@@ -76,11 +86,17 @@ export default function NewCustomerPage() {
         contact_email: formData.contact_email || null,
         contact_phone: formData.contact_phone || null,
         portal_enabled: formData.portal_enabled,
-      })
+      }).select().single()
 
       if (error) throw error
 
-      router.push('/dashboard/customers')
+      // Show success dialog instead of redirecting
+      setCreatedCustomer({
+        id: newCustomer.id,
+        slug: formData.slug,
+        company_name: formData.company_name,
+      })
+      setShowSuccess(true)
     } catch (error) {
       console.error('Error creating customer:', error)
       alert('Error creating customer. Please try again.')
@@ -89,12 +105,98 @@ export default function NewCustomerPage() {
     }
   }
 
+  const portalUrl = createdCustomer
+    ? `${typeof window !== 'undefined' ? window.location.origin : ''}/portal/${createdCustomer.slug}`
+    : ''
+
+  const copyPortalUrl = () => {
+    navigator.clipboard.writeText(portalUrl)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
   return (
     <div className="max-w-2xl mx-auto space-y-6">
+      {/* Success Dialog */}
+      <Dialog open={showSuccess} onOpenChange={setShowSuccess}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <div className="mx-auto mb-4 p-3 bg-green-100 rounded-full w-fit">
+              <PartyPopper className="h-8 w-8 text-green-600" />
+            </div>
+            <DialogTitle className="text-center text-xl">
+              Customer Created!
+            </DialogTitle>
+            <DialogDescription className="text-center">
+              {createdCustomer?.company_name} is ready to go. Share their portal link or invite them directly.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 mt-4">
+            {/* Portal URL */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Customer Portal URL</Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  readOnly
+                  value={portalUrl}
+                  className="bg-gray-50 text-sm"
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={copyPortalUrl}
+                  className="shrink-0"
+                >
+                  {copied ? (
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                variant="outline"
+                onClick={() => window.open(`/portal/${createdCustomer?.slug}`, '_blank')}
+              >
+                <ExternalLink className="h-4 w-4 mr-2" />
+                View Portal
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowSuccess(false)
+                  router.push(`/customers?invite=${createdCustomer?.id}`)
+                }}
+              >
+                <Mail className="h-4 w-4 mr-2" />
+                Invite User
+              </Button>
+            </div>
+
+            <div className="pt-4 border-t">
+              <Button
+                className="w-full"
+                onClick={() => {
+                  setShowSuccess(false)
+                  router.push('/customers')
+                }}
+              >
+                Done
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
-          <Link href="/dashboard/customers">
+          <Link href="/customers">
             <ArrowLeft className="h-5 w-5" />
           </Link>
         </Button>
@@ -209,7 +311,7 @@ export default function NewCustomerPage() {
 
         <div className="flex justify-end gap-4">
           <Button variant="outline" asChild>
-            <Link href="/dashboard/customers">Cancel</Link>
+            <Link href="/customers">Cancel</Link>
           </Button>
           <Button type="submit" disabled={loading}>
             {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}

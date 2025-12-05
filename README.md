@@ -134,6 +134,62 @@ Open [http://localhost:3000](http://localhost:3000)
 
 ---
 
+## Application URLs
+
+### Broker Dashboard (Authenticated)
+| Route | Description |
+|-------|-------------|
+| `/` | Main dashboard with stats and recent loads |
+| `/loads` | All loads list |
+| `/loads/new` | Create a new load |
+| `/loads/[id]` | Load detail page |
+| `/customers` | Customer management |
+| `/customers/new` | Add new customer (with portal setup) |
+| `/carriers` | Carrier management |
+| `/carriers/new` | Add new carrier |
+| `/tracking` | Live GPS tracking map |
+| `/team` | Team management and staff invites |
+
+### Customer Portal (Public/Auth)
+| Route | Description |
+|-------|-------------|
+| `/portal/[slug]` | Customer dashboard (e.g., `/portal/acme-manufacturing`) |
+| `/portal/[slug]/login` | Customer portal login |
+| `/portal/[slug]/loads` | Customer's shipments list |
+| `/portal/[slug]/loads/[id]` | Shipment detail with tracking |
+
+### Driver App (Public)
+| Route | Description |
+|-------|-------------|
+| `/driver` | Driver login and active load view |
+| `/driver/scan` | Document capture (POD photos) |
+
+### Public Pages
+| Route | Description |
+|-------|-------------|
+| `/welcome` | Landing page |
+| `/login` | Broker/staff login |
+| `/track/[token]` | Public tracking link (no auth required) |
+| `/invite/accept` | Accept staff/customer invite |
+
+### Demo Customer Portals (after loading mock data)
+- `/portal/acme-manufacturing` - Acme Manufacturing
+- `/portal/global-foods` - Global Foods Distribution
+- `/portal/swift-electronics` - Swift Electronics
+- `/portal/premier-building` - Premier Building Supplies
+- `/portal/midwest-grain` - Midwest Grain Co
+
+### Demo Driver Logins (phone numbers)
+| Driver | Phone | Carrier |
+|--------|-------|---------|
+| John Rodriguez | `5556011111` | Express Freight Lines |
+| Maria Santos | `5556022222` | Reliable Transport Inc |
+| James Wilson | `5556033333` | Highway Masters LLC |
+| Sarah Mitchell | `5556044444` | CrossCountry Haulers |
+| Mike Chang | `5556055555` | Swift Carriers |
+
+---
+
 ## Usage Walkthrough
 
 ### Creating Your First Load
@@ -197,33 +253,41 @@ Recipients can view:
 tms-app/
 ├── src/
 │   ├── app/
-│   │   ├── (auth)/              # Auth pages (login)
-│   │   ├── (dashboard)/         # Broker dashboard
-│   │   │   ├── dashboard/
-│   │   │   │   ├── loads/       # Load management
-│   │   │   │   ├── customers/   # Customer management
-│   │   │   │   ├── carriers/    # Carrier management
-│   │   │   │   └── tracking/    # Live tracking map
+│   │   ├── (dashboard)/         # Broker dashboard (route group - no /dashboard in URL)
+│   │   │   ├── page.tsx         # / - Main dashboard
+│   │   │   ├── loads/           # /loads - Load management
+│   │   │   ├── customers/       # /customers - Customer management
+│   │   │   ├── carriers/        # /carriers - Carrier management
+│   │   │   ├── tracking/        # /tracking - Live tracking map
+│   │   │   └── team/            # /team - Team management
 │   │   ├── api/                 # API routes
-│   │   │   ├── locations/       # GPS updates
-│   │   │   └── documents/       # File uploads
-│   │   ├── driver/              # Driver PWA
-│   │   ├── portal/              # Customer portal
-│   │   │   └── [slug]/          # Dynamic customer routes
-│   │   └── track/               # Public tracking
-│   │       └── [token]/         # Token-based access
+│   │   │   ├── locations/       # GPS updates from drivers
+│   │   │   ├── documents/       # File uploads
+│   │   │   └── invites/         # Staff/customer invite handling
+│   │   ├── driver/              # /driver - Driver PWA
+│   │   ├── portal/              # Customer portals
+│   │   │   └── [slug]/          # /portal/[company-slug] - Dynamic customer routes
+│   │   ├── track/               # Public tracking
+│   │   │   └── [token]/         # /track/[token] - Token-based access
+│   │   ├── invite/              # /invite - Invite acceptance
+│   │   ├── login/               # /login - Auth page
+│   │   └── welcome/             # /welcome - Landing page
 │   ├── components/
-│   │   ├── dashboard/           # Dashboard components
-│   │   ├── maps/                # Map components
+│   │   ├── dashboard/           # Dashboard components (Sidebar, StatusBadge)
+│   │   ├── maps/                # Map components (TrackingMap)
 │   │   └── ui/                  # shadcn/ui components
 │   └── lib/
-│       ├── supabase/            # Supabase clients
+│       ├── supabase/            # Supabase clients (client, server, middleware)
 │       └── types/               # TypeScript types
 ├── public/
 │   └── manifest.json            # PWA manifest
 └── supabase/
-    └── schema.sql               # Database schema
+    ├── schema.sql               # Main database schema
+    ├── invites-schema.sql       # Invite system tables
+    └── mock-data.sql            # Demo data for testing
 ```
+
+> **Note:** The `(dashboard)` folder is a Next.js route group. It applies the dashboard layout but doesn't add `/dashboard` to the URL. So `/loads` (not `/dashboard/loads`) is the actual route.
 
 ---
 
