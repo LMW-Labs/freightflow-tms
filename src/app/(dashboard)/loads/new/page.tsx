@@ -138,7 +138,7 @@ export default function NewLoadPage() {
         created_by_id: user.id,
       })
 
-      router.push(`/dashboard/loads/${load.id}`)
+      router.push(`/loads/${load.id}`)
     } catch (error) {
       console.error('Error creating load:', error)
       alert('Error creating load. Please try again.')
@@ -156,7 +156,7 @@ export default function NewLoadPage() {
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
-          <Link href="/dashboard/loads">
+          <Link href="/loads">
             <ArrowLeft className="h-5 w-5" />
           </Link>
         </Button>
@@ -481,7 +481,7 @@ export default function NewLoadPage() {
         {/* Submit */}
         <div className="flex justify-end gap-4">
           <Button variant="outline" asChild>
-            <Link href="/dashboard/loads">Cancel</Link>
+            <Link href="/loads">Cancel</Link>
           </Button>
           <Button type="submit" disabled={loading}>
             {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}

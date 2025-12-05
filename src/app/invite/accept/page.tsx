@@ -153,7 +153,7 @@ function AcceptInviteContent() {
       if (type === 'customer') {
         router.push('/portal')
       } else {
-        router.push('/dashboard')
+        router.push('/')
       }
       router.refresh()
     } catch (err) {

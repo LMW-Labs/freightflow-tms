@@ -152,7 +152,7 @@ export default function LiveTrackingPage() {
                     >
                       <div className="flex items-center justify-between mb-2">
                         <Link
-                          href={`/dashboard/loads/${load.id}`}
+                          href={`/loads/${load.id}`}
                           className="font-medium text-blue-600 hover:underline"
                           onClick={(e) => e.stopPropagation()}
                         >

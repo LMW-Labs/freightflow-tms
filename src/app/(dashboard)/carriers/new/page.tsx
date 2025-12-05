@@ -52,7 +52,7 @@ export default function NewCarrierPage() {
 
       if (error) throw error
 
-      router.push('/dashboard/carriers')
+      router.push('/carriers')
     } catch (error) {
       console.error('Error creating carrier:', error)
       alert('Error creating carrier. Please try again.')
@@ -66,7 +66,7 @@ export default function NewCarrierPage() {
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
-          <Link href="/dashboard/carriers">
+          <Link href="/carriers">
             <ArrowLeft className="h-5 w-5" />
           </Link>
         </Button>
@@ -166,7 +166,7 @@ export default function NewCarrierPage() {
 
         <div className="flex justify-end gap-4">
           <Button variant="outline" asChild>
-            <Link href="/dashboard/carriers">Cancel</Link>
+            <Link href="/carriers">Cancel</Link>
           </Button>
           <Button type="submit" disabled={loading}>
             {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}

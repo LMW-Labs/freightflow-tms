@@ -77,7 +77,7 @@ export default async function LoadsPage({ searchParams }: LoadsPageProps) {
           </p>
         </div>
         <Button asChild>
-          <Link href="/dashboard/loads/new">
+          <Link href="/loads/new">
             <Plus className="h-4 w-4 mr-2" />
             New Load
           </Link>
@@ -131,7 +131,7 @@ export default async function LoadsPage({ searchParams }: LoadsPageProps) {
                 <TableRow key={load.id} className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800">
                   <TableCell>
                     <Link
-                      href={`/dashboard/loads/${load.id}`}
+                      href={`/loads/${load.id}`}
                       className="font-medium text-blue-600 hover:underline"
                     >
                       {load.reference_number}

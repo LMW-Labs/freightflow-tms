@@ -72,7 +72,7 @@ export default async function LoadDetailPage({ params }: LoadDetailPageProps) {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" asChild>
-            <Link href="/dashboard/loads">
+            <Link href="/loads">
               <ArrowLeft className="h-5 w-5" />
             </Link>
           </Button>

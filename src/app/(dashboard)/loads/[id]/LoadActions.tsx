@@ -206,7 +206,7 @@ export function LoadActions({ load }: LoadActionsProps) {
 
       {/* Edit Button */}
       <Button variant="outline" asChild>
-        <a href={`/dashboard/loads/${load.id}/edit`}>
+        <a href={`/loads/${load.id}/edit`}>
           <Edit className="h-4 w-4 mr-2" />
           Edit
         </a>
