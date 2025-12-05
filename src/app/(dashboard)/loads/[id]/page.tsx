@@ -10,17 +10,16 @@ import {
   Calendar,
   Clock,
   Package,
-  Truck,
   User,
   DollarSign,
   FileText,
-  Copy,
   ExternalLink,
   CheckCircle,
   Circle,
 } from 'lucide-react'
 import Link from 'next/link'
 import { StatusBadge } from '@/components/dashboard/StatusBadge'
+import { CopyButton } from '@/components/CopyButton'
 import { LoadStatus } from '@/lib/types/database'
 import { format } from 'date-fns'
 import { TrackingMapWrapper } from '@/components/maps/TrackingMapWrapper'
@@ -125,13 +124,7 @@ export default async function LoadDetailPage({ params }: LoadDetailPageProps) {
               <div className="mt-4 flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                 <span className="text-sm text-gray-500">Tracking Link:</span>
                 <code className="flex-1 text-sm truncate">{trackingUrl}</code>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => navigator.clipboard.writeText(trackingUrl)}
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
+                <CopyButton text={trackingUrl} />
                 <Button variant="ghost" size="icon" asChild>
                   <Link href={`/track/${load.tracking_token}`} target="_blank">
                     <ExternalLink className="h-4 w-4" />
