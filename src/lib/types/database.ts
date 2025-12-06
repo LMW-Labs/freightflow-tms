@@ -18,6 +18,12 @@ export type LoadStatus =
   | 'delivered'
   | 'invoiced'
   | 'paid'
+  | 'complete'
+  | 'customer_paid'
+
+export type LoadType = 'TL' | 'LTL'
+
+export type EquipmentCode = 'FH' | 'F' | 'V' | 'STLG' | 'R' | 'SD' | 'OTHER'
 
 export type UserRole = 'admin' | 'broker' | 'accountant'
 export type CustomerUserRole = 'admin' | 'viewer'
@@ -242,6 +248,27 @@ export interface Database {
           tracking_token: string
           created_at: string
           updated_at: string
+          // New fields
+          booked_date: string | null
+          pickup_name: string | null
+          pickup_contact: string | null
+          pickup_phone: string | null
+          pickup_notes: string | null
+          delivery_name: string | null
+          delivery_contact: string | null
+          delivery_phone: string | null
+          delivery_notes: string | null
+          equipment_code: string | null
+          hauler_name: string | null
+          pro_number: string | null
+          po_number: string | null
+          bol_number: string | null
+          rate_con_received: boolean
+          pod_received: boolean
+          carrier_invoice_received: boolean
+          sales_rep_1: string | null
+          sales_rep_2: string | null
+          load_type: 'TL' | 'LTL'
         }
         Insert: {
           id?: string
@@ -280,6 +307,27 @@ export interface Database {
           tracking_token?: string
           created_at?: string
           updated_at?: string
+          // New fields
+          booked_date?: string | null
+          pickup_name?: string | null
+          pickup_contact?: string | null
+          pickup_phone?: string | null
+          pickup_notes?: string | null
+          delivery_name?: string | null
+          delivery_contact?: string | null
+          delivery_phone?: string | null
+          delivery_notes?: string | null
+          equipment_code?: string | null
+          hauler_name?: string | null
+          pro_number?: string | null
+          po_number?: string | null
+          bol_number?: string | null
+          rate_con_received?: boolean
+          pod_received?: boolean
+          carrier_invoice_received?: boolean
+          sales_rep_1?: string | null
+          sales_rep_2?: string | null
+          load_type?: 'TL' | 'LTL'
         }
         Update: {
           id?: string
@@ -318,6 +366,27 @@ export interface Database {
           tracking_token?: string
           created_at?: string
           updated_at?: string
+          // New fields
+          booked_date?: string | null
+          pickup_name?: string | null
+          pickup_contact?: string | null
+          pickup_phone?: string | null
+          pickup_notes?: string | null
+          delivery_name?: string | null
+          delivery_contact?: string | null
+          delivery_phone?: string | null
+          delivery_notes?: string | null
+          equipment_code?: string | null
+          hauler_name?: string | null
+          pro_number?: string | null
+          po_number?: string | null
+          bol_number?: string | null
+          rate_con_received?: boolean
+          pod_received?: boolean
+          carrier_invoice_received?: boolean
+          sales_rep_1?: string | null
+          sales_rep_2?: string | null
+          load_type?: 'TL' | 'LTL'
         }
       }
       location_history: {

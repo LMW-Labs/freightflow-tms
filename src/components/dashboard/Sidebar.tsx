@@ -15,6 +15,7 @@ import {
   Menu,
   X,
   UserPlus,
+  FileText,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useState } from 'react'
@@ -24,6 +25,7 @@ const navigation = [
   { name: 'Loads', href: '/loads', icon: Package },
   { name: 'Customers', href: '/customers', icon: Users },
   { name: 'Carriers', href: '/carriers', icon: Truck },
+  { name: 'Documents', href: '/documents', icon: FileText },
   { name: 'Live Tracking', href: '/tracking', icon: MapPin },
   { name: 'Team', href: '/team', icon: UserPlus },
 ]
