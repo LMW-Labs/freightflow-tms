@@ -47,6 +47,14 @@ const statusConfig: Record<LoadStatus, { label: string; className: string }> = {
     label: 'Paid',
     className: 'bg-emerald-100 text-emerald-800 hover:bg-emerald-100',
   },
+  complete: {
+    label: 'Complete',
+    className: 'bg-green-200 text-green-900 hover:bg-green-200',
+  },
+  customer_paid: {
+    label: 'Customer Paid',
+    className: 'bg-teal-100 text-teal-800 hover:bg-teal-100',
+  },
 }
 
 interface StatusBadgeProps {

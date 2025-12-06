@@ -10,10 +10,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { ArrowLeft, Building2, Phone, Mail, Truck, UserPlus } from 'lucide-react'
+import { ArrowLeft, Building2, Phone, Mail, Truck, UserPlus, FileText, Copy, Check } from 'lucide-react'
 import Link from 'next/link'
 import { AddDriverDialog } from './AddDriverDialog'
 import { SendDriverLinkButton } from './SendDriverLinkButton'
+import { SendOnboardingLinkButton } from './SendOnboardingLinkButton'
+import { Badge } from '@/components/ui/badge'
 
 interface CarrierDetailPageProps {
   params: Promise<{ id: string }>
@@ -49,15 +51,27 @@ export default async function CarrierDetailPage({ params }: CarrierDetailPagePro
           </Link>
         </Button>
         <div className="flex-1">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            {carrier.company_name}
-          </h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              {carrier.company_name}
+            </h1>
+            {(carrier as { status?: string }).status && (
+              <Badge variant={
+                (carrier as { status?: string }).status === 'Active' ? 'default' :
+                (carrier as { status?: string }).status === 'Onboarding Signed' ? 'default' :
+                'secondary'
+              }>
+                {(carrier as { status?: string }).status}
+              </Badge>
+            )}
+          </div>
           <p className="text-gray-500 dark:text-gray-400">
             {carrier.mc_number && `MC# ${carrier.mc_number}`}
             {carrier.mc_number && carrier.dot_number && ' • '}
             {carrier.dot_number && `DOT# ${carrier.dot_number}`}
           </p>
         </div>
+        <SendOnboardingLinkButton carrierId={carrier.id} carrierName={carrier.company_name} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
