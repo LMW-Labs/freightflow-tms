@@ -157,7 +157,7 @@ export function SendOnboardingLinkButton({ carrierId, carrierName, carrierEmail 
           {/* Email Section */}
           <div className="pt-4 border-t space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="carrier-email">Send via Email</Label>
+              <Label htmlFor="carrier-email">Send to Email</Label>
               <Input
                 id="carrier-email"
                 type="email"

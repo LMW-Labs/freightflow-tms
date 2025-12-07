@@ -165,7 +165,7 @@ export function SendLoadRequestLinkButton({
           {/* Email Section */}
           <div className="pt-4 border-t space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Send via Email</Label>
+              <Label htmlFor="email">Send to Email</Label>
               <Input
                 id="email"
                 type="email"

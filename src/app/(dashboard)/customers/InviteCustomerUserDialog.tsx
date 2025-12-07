@@ -26,11 +26,18 @@ import { UserPlus, Copy, Check, Loader2 } from 'lucide-react'
 interface InviteCustomerUserDialogProps {
   customerId: string
   customerName: string
+  defaultOpen?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
-export function InviteCustomerUserDialog({ customerId, customerName }: InviteCustomerUserDialogProps) {
+export function InviteCustomerUserDialog({
+  customerId,
+  customerName,
+  defaultOpen = false,
+  onOpenChange
+}: InviteCustomerUserDialogProps) {
   const router = useRouter()
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(defaultOpen)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [inviteUrl, setInviteUrl] = useState<string | null>(null)
@@ -90,8 +97,13 @@ export function InviteCustomerUserDialog({ customerId, customerName }: InviteCus
     setInviteUrl(null)
   }
 
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen)
+    onOpenChange?.(newOpen)
+  }
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
           <UserPlus className="h-4 w-4 mr-1" />
