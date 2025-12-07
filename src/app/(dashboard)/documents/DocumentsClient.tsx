@@ -379,12 +379,21 @@ export function DocumentsClient({ templates, recentDocuments }: DocumentsClientP
                 <FileText className="h-12 w-12 text-muted-foreground mb-4" />
                 <h3 className="text-lg font-medium mb-2">No templates yet</h3>
                 <p className="text-sm text-muted-foreground mb-4 text-center max-w-md">
-                  Create your first document template. You can design rate confirmations, BOLs, invoices and more with automatic variable replacement.
+                  Create custom document templates for rate confirmations, BOLs, invoices and more.
+                  Templates automatically fill in load data using variables.
                 </p>
-                <Button onClick={openNewTemplate}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create Template
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Button onClick={openNewTemplate}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create Template
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground mt-4">
+                  💡 Tip: Use a desktop computer for the best template editing experience
+                </p>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Don't have a custom template? The system will use the default rate confirmation format.
+                </p>
               </CardContent>
             </Card>
           ) : (
@@ -534,12 +543,12 @@ export function DocumentsClient({ templates, recentDocuments }: DocumentsClientP
         </TabsContent>
       </Tabs>
 
-      {/* Template Editor Dialog */}
+      {/* Template Editor Dialog - Full Screen */}
       <Dialog open={editorOpen} onOpenChange={(open) => {
         if (!open) resetForm()
         setEditorOpen(open)
       }}>
-        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="w-[95vw] max-w-[95vw] h-[90vh] max-h-[90vh] overflow-hidden flex flex-col">
           <DialogHeader>
             <DialogTitle>
               {editingTemplate ? 'Edit Template' : 'Create New Template'}
@@ -549,9 +558,14 @@ export function DocumentsClient({ templates, recentDocuments }: DocumentsClientP
             </DialogDescription>
           </DialogHeader>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
+          {/* Mobile Warning */}
+          <div className="lg:hidden bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 text-sm text-yellow-800 dark:text-yellow-200">
+            <strong>Best on Desktop:</strong> The template editor works best on a larger screen. Consider using a desktop computer for the best experience.
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mt-4 flex-1 overflow-hidden">
             {/* Settings Panel */}
-            <div className="space-y-4">
+            <div className="space-y-4 overflow-y-auto pr-2">
               <div className="space-y-2">
                 <Label>Template Name *</Label>
                 <Input
@@ -633,7 +647,7 @@ export function DocumentsClient({ templates, recentDocuments }: DocumentsClientP
             </div>
 
             {/* Editor Panel */}
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-3 flex flex-col overflow-hidden">
               <TemplateEditor
                 content={htmlContent}
                 onChange={setHtmlContent}
@@ -641,7 +655,7 @@ export function DocumentsClient({ templates, recentDocuments }: DocumentsClientP
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
+          <div className="flex justify-end gap-3 pt-4 border-t shrink-0">
             <Button variant="outline" onClick={() => setEditorOpen(false)}>
               Cancel
             </Button>
