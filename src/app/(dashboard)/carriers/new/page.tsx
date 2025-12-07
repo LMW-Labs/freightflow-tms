@@ -165,9 +165,11 @@ export default function NewCarrierPage() {
       if (error) throw error
 
       router.push('/carriers')
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error creating carrier:', error)
-      alert('Error creating carrier. Please try again.')
+      const message = error instanceof Error ? error.message :
+        (error as { message?: string })?.message || 'Unknown error'
+      alert(`Error creating carrier: ${message}`)
     } finally {
       setLoading(false)
     }
