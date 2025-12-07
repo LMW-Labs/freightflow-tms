@@ -10,21 +10,22 @@ function getSupabase() {
   )
 }
 
-// KHCL company info
+// Broker info from env - configurable per deployment
 const BROKER_INFO = {
-  name: 'KHCL Logistics, LLC',
-  address: '174 Grandview Dr',
-  cityStateZip: 'Florence, MS 39073',
-  mc: '123853',
-  phone: '(601) 750-2330',
-  fax: '(601) 750-2331',
-  email: 'dispatch@khcllogistics.com',
+  name: process.env.NEXT_PUBLIC_COMPANY_NAME || 'FreightFlow',
+  address: process.env.NEXT_PUBLIC_BROKER_ADDRESS || '',
+  cityStateZip: process.env.NEXT_PUBLIC_BROKER_CITY_STATE_ZIP || '',
+  mc: process.env.NEXT_PUBLIC_BROKER_MC || '',
+  phone: process.env.NEXT_PUBLIC_COMPANY_PHONE || '',
+  fax: process.env.NEXT_PUBLIC_BROKER_FAX || '',
+  email: process.env.NEXT_PUBLIC_COMPANY_EMAIL || '',
 }
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
     const loadId = searchParams.get('load_id')
+    const useTemplate = searchParams.get('use_template') !== 'false' // Default to true
 
     if (!loadId) {
       return NextResponse.json({ error: 'Load ID required' }, { status: 400 })
@@ -32,13 +33,14 @@ export async function GET(request: Request) {
 
     const supabase = getSupabase()
 
-    // Fetch load with carrier data
+    // Fetch load with carrier and customer data
     const { data: load, error: loadError } = await supabase
       .from('loads')
       .select(`
         *,
         carrier:carriers(*),
-        customer:customers(*)
+        customer:customers(*),
+        driver:drivers(*)
       `)
       .eq('id', loadId)
       .single()
@@ -47,7 +49,43 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Load not found' }, { status: 404 })
     }
 
-    // Create PDF document
+    // Check for custom template if enabled
+    if (useTemplate) {
+      const { data: template } = await supabase
+        .from('document_templates')
+        .select('*')
+        .eq('type', 'rate_confirmation')
+        .eq('is_default', true)
+        .eq('is_active', true)
+        .single()
+
+      if (template) {
+        // Use custom template - redirect to the generate-pdf API
+        const generateUrl = new URL('/api/generate-pdf', request.url)
+        generateUrl.searchParams.set('load_id', loadId)
+        generateUrl.searchParams.set('template_type', 'rate_confirmation')
+
+        // Forward the request to generate-pdf
+        const response = await fetch(generateUrl.toString(), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ load_id: loadId, template_type: 'rate_confirmation' })
+        })
+
+        if (response.ok) {
+          const pdfBuffer = await response.arrayBuffer()
+          return new NextResponse(Buffer.from(pdfBuffer), {
+            headers: {
+              'Content-Type': 'application/pdf',
+              'Content-Disposition': `inline; filename="RateCon_${load.reference_number}.pdf"`,
+            },
+          })
+        }
+        // If template generation fails, fall through to code-generated version
+      }
+    }
+
+    // Fall back to code-generated PDF
     const pdfDoc = await PDFDocument.create()
     const page = pdfDoc.addPage([612, 792]) // Letter size
     const { height } = page.getSize()
@@ -90,15 +128,24 @@ export async function GET(request: Request) {
     drawText(`Load #: ${load.reference_number}`, 450, y, { font: helveticaBold, size: 12 })
     y -= 15
 
-    drawText(BROKER_INFO.address, 50, y, { size: 10 })
-    drawText(`Date: ${format(new Date(), 'MM/dd/yyyy')}`, 450, y, { size: 10 })
-    y -= 12
+    if (BROKER_INFO.address) {
+      drawText(BROKER_INFO.address, 50, y, { size: 10 })
+      y -= 12
+    }
 
-    drawText(BROKER_INFO.cityStateZip, 50, y, { size: 10 })
-    y -= 12
+    drawText(`Date: ${format(new Date(), 'MM/dd/yyyy')}`, 450, y - (BROKER_INFO.address ? -12 : 0), { size: 10 })
 
-    drawText(`MC# ${BROKER_INFO.mc}`, 50, y, { size: 10 })
-    drawText(`Phone: ${BROKER_INFO.phone}`, 200, y, { size: 10 })
+    if (BROKER_INFO.cityStateZip) {
+      drawText(BROKER_INFO.cityStateZip, 50, y, { size: 10 })
+      y -= 12
+    }
+
+    if (BROKER_INFO.mc) {
+      drawText(`MC# ${BROKER_INFO.mc}`, 50, y, { size: 10 })
+    }
+    if (BROKER_INFO.phone) {
+      drawText(`Phone: ${BROKER_INFO.phone}`, 200, y, { size: 10 })
+    }
     y -= 25
 
     drawLine(50, y, 562, y)
