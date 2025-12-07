@@ -74,6 +74,28 @@ export async function POST(request: Request) {
       )
     }
 
+    // Auto-update document flags on the load
+    const flagUpdates: Record<string, boolean> = {}
+    if (type === 'pod') {
+      flagUpdates.pod_received = true
+    } else if (type === 'rate_con') {
+      flagUpdates.rate_con_received = true
+    } else if (type === 'invoice') {
+      flagUpdates.carrier_invoice_received = true
+    }
+
+    if (Object.keys(flagUpdates).length > 0) {
+      const { error: flagError } = await supabase
+        .from('loads')
+        .update(flagUpdates)
+        .eq('id', load_id)
+
+      if (flagError) {
+        console.error('Flag update error:', flagError)
+        // Don't fail the upload, just log the error
+      }
+    }
+
     return NextResponse.json({ success: true, url: publicUrl })
   } catch (error) {
     console.error('Document upload error:', error)

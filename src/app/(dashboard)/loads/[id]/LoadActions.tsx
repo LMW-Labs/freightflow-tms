@@ -21,7 +21,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Edit, Upload, Loader2, Send, Copy, Check, ExternalLink, FileUp } from 'lucide-react'
+import { Edit, Upload, Loader2, Send, Copy, Check, ExternalLink, FileUp, FileText } from 'lucide-react'
 import { Load, LoadStatus, DocumentType } from '@/lib/types/database'
 
 const driverRequestTypes = [
@@ -208,8 +208,18 @@ export function LoadActions({ load }: LoadActionsProps) {
     }
   }
 
+  const rateConUrl = `/api/rate-con?load_id=${load.id}`
+
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-3 flex-wrap">
+      {/* Rate Con Button */}
+      <Button variant="outline" asChild>
+        <a href={rateConUrl} target="_blank" rel="noopener noreferrer">
+          <FileText className="h-4 w-4 mr-2" />
+          Rate Con
+        </a>
+      </Button>
+
       {/* Status Dropdown */}
       <Select
         value={load.status}

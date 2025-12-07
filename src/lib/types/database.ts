@@ -157,6 +157,37 @@ export interface Database {
           contact_email: string | null
           contact_phone: string | null
           created_at: string
+          // Onboarding fields
+          status: string | null
+          address: string | null
+          city: string | null
+          state: string | null
+          zip: string | null
+          fax: string | null
+          factoring_company: string | null
+          factoring_contact: string | null
+          factoring_phone: string | null
+          factoring_email: string | null
+          w9_name: string | null
+          w9_type: string | null
+          w9_address: string | null
+          w9_city_state_zip: string | null
+          w9_tin: string | null
+          remit_name: string | null
+          remit_address: string | null
+          remit_city: string | null
+          remit_state: string | null
+          remit_zip: string | null
+          quickpay_enabled: boolean
+          pay_method: string | null
+          equipment_types: string[] | null
+          preferred_lanes: Json | null
+          insurance_file_url: string | null
+          w9_file_url: string | null
+          authority_file_url: string | null
+          agreement_signed_at: string | null
+          agreement_signature_url: string | null
+          onboarding_completed_at: string | null
         }
         Insert: {
           id?: string
@@ -168,6 +199,37 @@ export interface Database {
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
+          // Onboarding fields
+          status?: string | null
+          address?: string | null
+          city?: string | null
+          state?: string | null
+          zip?: string | null
+          fax?: string | null
+          factoring_company?: string | null
+          factoring_contact?: string | null
+          factoring_phone?: string | null
+          factoring_email?: string | null
+          w9_name?: string | null
+          w9_type?: string | null
+          w9_address?: string | null
+          w9_city_state_zip?: string | null
+          w9_tin?: string | null
+          remit_name?: string | null
+          remit_address?: string | null
+          remit_city?: string | null
+          remit_state?: string | null
+          remit_zip?: string | null
+          quickpay_enabled?: boolean
+          pay_method?: string | null
+          equipment_types?: string[] | null
+          preferred_lanes?: Json | null
+          insurance_file_url?: string | null
+          w9_file_url?: string | null
+          authority_file_url?: string | null
+          agreement_signed_at?: string | null
+          agreement_signature_url?: string | null
+          onboarding_completed_at?: string | null
         }
         Update: {
           id?: string
@@ -179,6 +241,37 @@ export interface Database {
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
+          // Onboarding fields
+          status?: string | null
+          address?: string | null
+          city?: string | null
+          state?: string | null
+          zip?: string | null
+          fax?: string | null
+          factoring_company?: string | null
+          factoring_contact?: string | null
+          factoring_phone?: string | null
+          factoring_email?: string | null
+          w9_name?: string | null
+          w9_type?: string | null
+          w9_address?: string | null
+          w9_city_state_zip?: string | null
+          w9_tin?: string | null
+          remit_name?: string | null
+          remit_address?: string | null
+          remit_city?: string | null
+          remit_state?: string | null
+          remit_zip?: string | null
+          quickpay_enabled?: boolean
+          pay_method?: string | null
+          equipment_types?: string[] | null
+          preferred_lanes?: Json | null
+          insurance_file_url?: string | null
+          w9_file_url?: string | null
+          authority_file_url?: string | null
+          agreement_signed_at?: string | null
+          agreement_signature_url?: string | null
+          onboarding_completed_at?: string | null
         }
       }
       drivers: {
@@ -269,6 +362,16 @@ export interface Database {
           sales_rep_1: string | null
           sales_rep_2: string | null
           load_type: 'TL' | 'LTL'
+          // Rate con fields
+          pay_terms: string | null
+          cargo_value: number | null
+          quantity: number | null
+          package_type: string | null
+          pickup_cell: string | null
+          pickup_email: string | null
+          delivery_cell: string | null
+          delivery_email: string | null
+          freight_terms: string | null
         }
         Insert: {
           id?: string
@@ -328,6 +431,16 @@ export interface Database {
           sales_rep_1?: string | null
           sales_rep_2?: string | null
           load_type?: 'TL' | 'LTL'
+          // Rate con fields
+          pay_terms?: string | null
+          cargo_value?: number | null
+          quantity?: number | null
+          package_type?: string | null
+          pickup_cell?: string | null
+          pickup_email?: string | null
+          delivery_cell?: string | null
+          delivery_email?: string | null
+          freight_terms?: string | null
         }
         Update: {
           id?: string
@@ -387,6 +500,144 @@ export interface Database {
           sales_rep_1?: string | null
           sales_rep_2?: string | null
           load_type?: 'TL' | 'LTL'
+          // Rate con fields
+          pay_terms?: string | null
+          cargo_value?: number | null
+          quantity?: number | null
+          package_type?: string | null
+          pickup_cell?: string | null
+          pickup_email?: string | null
+          delivery_cell?: string | null
+          delivery_email?: string | null
+          freight_terms?: string | null
+        }
+      }
+      load_requests: {
+        Row: {
+          id: string
+          customer_id: string | null
+          status: string
+          reference_number: string | null
+          pickup_name: string | null
+          pickup_address: string | null
+          pickup_city: string | null
+          pickup_state: string | null
+          pickup_zip: string | null
+          pickup_contact: string | null
+          pickup_phone: string | null
+          pickup_email: string | null
+          pickup_date: string | null
+          pickup_time_start: string | null
+          pickup_time_end: string | null
+          pickup_notes: string | null
+          delivery_name: string | null
+          delivery_address: string | null
+          delivery_city: string | null
+          delivery_state: string | null
+          delivery_zip: string | null
+          delivery_contact: string | null
+          delivery_phone: string | null
+          delivery_email: string | null
+          delivery_date: string | null
+          delivery_time_start: string | null
+          delivery_time_end: string | null
+          delivery_notes: string | null
+          commodity: string | null
+          weight: number | null
+          quantity: number | null
+          package_type: string | null
+          equipment_type: string | null
+          special_instructions: string | null
+          quoted_rate: number | null
+          quoted_at: string | null
+          quoted_by: string | null
+          converted_load_id: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          customer_id?: string | null
+          status?: string
+          reference_number?: string | null
+          pickup_name?: string | null
+          pickup_address?: string | null
+          pickup_city?: string | null
+          pickup_state?: string | null
+          pickup_zip?: string | null
+          pickup_contact?: string | null
+          pickup_phone?: string | null
+          pickup_email?: string | null
+          pickup_date?: string | null
+          pickup_time_start?: string | null
+          pickup_time_end?: string | null
+          pickup_notes?: string | null
+          delivery_name?: string | null
+          delivery_address?: string | null
+          delivery_city?: string | null
+          delivery_state?: string | null
+          delivery_zip?: string | null
+          delivery_contact?: string | null
+          delivery_phone?: string | null
+          delivery_email?: string | null
+          delivery_date?: string | null
+          delivery_time_start?: string | null
+          delivery_time_end?: string | null
+          delivery_notes?: string | null
+          commodity?: string | null
+          weight?: number | null
+          quantity?: number | null
+          package_type?: string | null
+          equipment_type?: string | null
+          special_instructions?: string | null
+          quoted_rate?: number | null
+          quoted_at?: string | null
+          quoted_by?: string | null
+          converted_load_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          customer_id?: string | null
+          status?: string
+          reference_number?: string | null
+          pickup_name?: string | null
+          pickup_address?: string | null
+          pickup_city?: string | null
+          pickup_state?: string | null
+          pickup_zip?: string | null
+          pickup_contact?: string | null
+          pickup_phone?: string | null
+          pickup_email?: string | null
+          pickup_date?: string | null
+          pickup_time_start?: string | null
+          pickup_time_end?: string | null
+          pickup_notes?: string | null
+          delivery_name?: string | null
+          delivery_address?: string | null
+          delivery_city?: string | null
+          delivery_state?: string | null
+          delivery_zip?: string | null
+          delivery_contact?: string | null
+          delivery_phone?: string | null
+          delivery_email?: string | null
+          delivery_date?: string | null
+          delivery_time_start?: string | null
+          delivery_time_end?: string | null
+          delivery_notes?: string | null
+          commodity?: string | null
+          weight?: number | null
+          quantity?: number | null
+          package_type?: string | null
+          equipment_type?: string | null
+          special_instructions?: string | null
+          quoted_rate?: number | null
+          quoted_at?: string | null
+          quoted_by?: string | null
+          converted_load_id?: string | null
+          created_at?: string
+          updated_at?: string
         }
       }
       location_history: {
@@ -515,6 +766,7 @@ export type Load = Database['public']['Tables']['loads']['Row']
 export type LocationHistory = Database['public']['Tables']['location_history']['Row']
 export type Document = Database['public']['Tables']['documents']['Row']
 export type StatusHistory = Database['public']['Tables']['status_history']['Row']
+export type LoadRequest = Database['public']['Tables']['load_requests']['Row']
 
 // Extended types with relations
 export type LoadWithRelations = Load & {

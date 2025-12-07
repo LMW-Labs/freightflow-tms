@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Package, Truck, CheckCircle, ArrowRight, MapPin, Clock, Sparkles } from 'lucide-react'
+import { Package, Truck, CheckCircle, ArrowRight, MapPin, Clock, Sparkles, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { StatusBadge } from '@/components/dashboard/StatusBadge'
 import { LoadStatus } from '@/lib/types/database'
@@ -101,6 +101,13 @@ export default async function PortalPage({ params }: PortalPageProps) {
               {customer.company_name}
             </p>
           )}
+          <Link
+            href={`/portal/${slug}/request-load`}
+            className="inline-flex items-center gap-2 mt-4 px-6 py-3 bg-white/20 hover:bg-white/30 rounded-lg text-white font-medium transition-colors"
+          >
+            <Plus className="h-5 w-5" />
+            Request a Load
+          </Link>
         </div>
       </div>
 

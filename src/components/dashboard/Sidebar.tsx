@@ -16,6 +16,7 @@ import {
   X,
   UserPlus,
   FileText,
+  ClipboardList,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useState } from 'react'
@@ -23,6 +24,7 @@ import { useState } from 'react'
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Loads', href: '/loads', icon: Package },
+  { name: 'Load Requests', href: '/load-requests', icon: ClipboardList },
   { name: 'Customers', href: '/customers', icon: Users },
   { name: 'Carriers', href: '/carriers', icon: Truck },
   { name: 'Documents', href: '/documents', icon: FileText },

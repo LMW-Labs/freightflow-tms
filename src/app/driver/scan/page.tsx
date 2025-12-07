@@ -163,6 +163,7 @@ function ScanPageContent() {
               <SelectContent>
                 <SelectItem value="pod">Proof of Delivery (POD)</SelectItem>
                 <SelectItem value="bol">Bill of Lading (BOL)</SelectItem>
+                <SelectItem value="invoice">Carrier Invoice</SelectItem>
                 <SelectItem value="other">Other Document</SelectItem>
               </SelectContent>
             </Select>

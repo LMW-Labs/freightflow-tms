@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
 import {
@@ -27,11 +28,27 @@ export default function NewCustomerPage() {
   const [copied, setCopied] = useState(false)
 
   const [formData, setFormData] = useState({
+    // Company Info
     company_name: '',
     slug: '',
+    // Primary Contact
     contact_name: '',
     contact_email: '',
     contact_phone: '',
+    // Physical Address
+    address: '',
+    city: '',
+    state: '',
+    zip: '',
+    // Billing Address
+    billing_address: '',
+    billing_city: '',
+    billing_state: '',
+    billing_zip: '',
+    billing_same_as_physical: true,
+    // Additional Info
+    notes: '',
+    // Portal Settings
     portal_enabled: true,
   })
 
@@ -67,24 +84,40 @@ export default function NewCustomerPage() {
       if (!userData?.organization_id) throw new Error('No organization found')
 
       // Check if slug is unique
+      let slug = formData.slug
       const { data: existing } = await supabase
         .from('customers')
         .select('id')
-        .eq('slug', formData.slug)
+        .eq('slug', slug)
         .single()
 
       if (existing) {
         // Add timestamp to make slug unique
-        formData.slug = `${formData.slug}-${Date.now()}`
+        slug = `${formData.slug}-${Date.now()}`
       }
+
+      // Use physical address for billing if same
+      const billingAddress = formData.billing_same_as_physical ? formData.address : formData.billing_address
+      const billingCity = formData.billing_same_as_physical ? formData.city : formData.billing_city
+      const billingState = formData.billing_same_as_physical ? formData.state : formData.billing_state
+      const billingZip = formData.billing_same_as_physical ? formData.zip : formData.billing_zip
 
       const { data: newCustomer, error } = await supabase.from('customers').insert({
         organization_id: userData.organization_id,
         company_name: formData.company_name,
-        slug: formData.slug,
+        slug: slug,
         contact_name: formData.contact_name || null,
         contact_email: formData.contact_email || null,
         contact_phone: formData.contact_phone || null,
+        address: formData.address || null,
+        city: formData.city || null,
+        state: formData.state || null,
+        zip: formData.zip || null,
+        billing_address: billingAddress || null,
+        billing_city: billingCity || null,
+        billing_state: billingState || null,
+        billing_zip: billingZip || null,
+        notes: formData.notes || null,
         portal_enabled: formData.portal_enabled,
       }).select().single()
 
@@ -93,7 +126,7 @@ export default function NewCustomerPage() {
       // Show success dialog instead of redirecting
       setCreatedCustomer({
         id: newCustomer.id,
-        slug: formData.slug,
+        slug: slug,
         company_name: formData.company_name,
       })
       setShowSuccess(true)
@@ -116,7 +149,7 @@ export default function NewCustomerPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-3xl mx-auto space-y-6">
       {/* Success Dialog */}
       <Dialog open={showSuccess} onOpenChange={setShowSuccess}>
         <DialogContent className="sm:max-w-md">
@@ -211,43 +244,44 @@ export default function NewCustomerPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Company Information */}
         <Card>
           <CardHeader>
             <CardTitle>Company Information</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label>Company Name *</Label>
-              <Input
-                required
-                value={formData.company_name}
-                onChange={(e) => handleCompanyNameChange(e.target.value)}
-                placeholder="Acme Shipping Inc."
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Portal URL Slug *</Label>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-500">/portal/</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Company Name *</Label>
                 <Input
                   required
-                  value={formData.slug}
-                  onChange={(e) =>
-                    setFormData({ ...formData, slug: e.target.value })
-                  }
-                  placeholder="acme-shipping"
+                  value={formData.company_name}
+                  onChange={(e) => handleCompanyNameChange(e.target.value)}
+                  placeholder="Acme Shipping Inc."
                 />
               </div>
-              <p className="text-xs text-gray-500">
-                This will be the URL for the customer portal
-              </p>
+              <div className="space-y-2">
+                <Label>Portal URL Slug *</Label>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-500">/portal/</span>
+                  <Input
+                    required
+                    value={formData.slug}
+                    onChange={(e) =>
+                      setFormData({ ...formData, slug: e.target.value })
+                    }
+                    placeholder="acme-shipping"
+                  />
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
 
+        {/* Contact Information */}
         <Card>
           <CardHeader>
-            <CardTitle>Contact Information</CardTitle>
+            <CardTitle>Primary Contact</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -287,6 +321,142 @@ export default function NewCustomerPage() {
           </CardContent>
         </Card>
 
+        {/* Physical Address */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Physical Address</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label>Street Address</Label>
+              <Input
+                value={formData.address}
+                onChange={(e) =>
+                  setFormData({ ...formData, address: e.target.value })
+                }
+                placeholder="123 Main St"
+              />
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="space-y-2 col-span-2">
+                <Label>City</Label>
+                <Input
+                  value={formData.city}
+                  onChange={(e) =>
+                    setFormData({ ...formData, city: e.target.value })
+                  }
+                  placeholder="City"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>State</Label>
+                <Input
+                  value={formData.state}
+                  onChange={(e) =>
+                    setFormData({ ...formData, state: e.target.value })
+                  }
+                  placeholder="State"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>ZIP Code</Label>
+                <Input
+                  value={formData.zip}
+                  onChange={(e) =>
+                    setFormData({ ...formData, zip: e.target.value })
+                  }
+                  placeholder="12345"
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Billing Address */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Billing Address</CardTitle>
+              <div className="flex items-center gap-2">
+                <Switch
+                  checked={formData.billing_same_as_physical}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, billing_same_as_physical: checked })
+                  }
+                />
+                <Label className="text-sm text-gray-500">Same as physical</Label>
+              </div>
+            </div>
+          </CardHeader>
+          {!formData.billing_same_as_physical && (
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Street Address</Label>
+                <Input
+                  value={formData.billing_address}
+                  onChange={(e) =>
+                    setFormData({ ...formData, billing_address: e.target.value })
+                  }
+                  placeholder="123 Billing St"
+                />
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="space-y-2 col-span-2">
+                  <Label>City</Label>
+                  <Input
+                    value={formData.billing_city}
+                    onChange={(e) =>
+                      setFormData({ ...formData, billing_city: e.target.value })
+                    }
+                    placeholder="City"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>State</Label>
+                  <Input
+                    value={formData.billing_state}
+                    onChange={(e) =>
+                      setFormData({ ...formData, billing_state: e.target.value })
+                    }
+                    placeholder="State"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>ZIP Code</Label>
+                  <Input
+                    value={formData.billing_zip}
+                    onChange={(e) =>
+                      setFormData({ ...formData, billing_zip: e.target.value })
+                    }
+                    placeholder="12345"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          )}
+        </Card>
+
+        {/* Notes */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Additional Information</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <Label>Notes</Label>
+              <Textarea
+                value={formData.notes}
+                onChange={(e) =>
+                  setFormData({ ...formData, notes: e.target.value })
+                }
+                placeholder="Any additional notes about this customer..."
+                rows={4}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Portal Settings */}
         <Card>
           <CardHeader>
             <CardTitle>Portal Settings</CardTitle>
