@@ -47,6 +47,8 @@ import {
   Edit,
   Star,
   Check,
+  Upload,
+  X,
 } from 'lucide-react'
 import { TemplateEditor } from '@/components/template-editor/TemplateEditor'
 
@@ -240,6 +242,8 @@ export function DocumentsClient({ templates, recentDocuments }: DocumentsClientP
   const [requestMessage, setRequestMessage] = useState('')
   const [requestSending, setRequestSending] = useState(false)
   const [requestSent, setRequestSent] = useState(false)
+  const [requestLogo, setRequestLogo] = useState<File | null>(null)
+  const [logoPreview, setLogoPreview] = useState<string | null>(null)
 
   const resetForm = () => {
     setTemplateName('')
@@ -257,6 +261,31 @@ export function DocumentsClient({ templates, recentDocuments }: DocumentsClientP
     resetForm()
     setHtmlContent(defaultRateConTemplate)
     setEditorOpen(true)
+  }
+
+  const useStandardTemplate = async () => {
+    setSaving(true)
+    try {
+      const { error } = await supabase
+        .from('document_templates')
+        .insert({
+          name: 'FreightFlow Standard Rate Confirmation',
+          type: 'rate_confirmation',
+          description: 'Professional rate confirmation template with all essential fields',
+          html_content: defaultRateConTemplate,
+          page_size: 'letter',
+          page_orientation: 'portrait',
+          is_default: true,
+        })
+
+      if (error) throw error
+      router.refresh()
+    } catch (error) {
+      console.error('Error creating standard template:', error)
+      alert('Error creating template')
+    } finally {
+      setSaving(false)
+    }
   }
 
   const openEditTemplate = (template: DocumentTemplate) => {
@@ -384,25 +413,62 @@ export function DocumentsClient({ templates, recentDocuments }: DocumentsClientP
               <CardContent className="flex flex-col items-center justify-center py-12">
                 <FileText className="h-12 w-12 text-muted-foreground mb-4" />
                 <h3 className="text-lg font-medium mb-2">No templates yet</h3>
-                <p className="text-sm text-muted-foreground mb-4 text-center max-w-md">
-                  Create custom document templates for rate confirmations, BOLs, invoices and more.
-                  Templates automatically fill in load data using variables.
+                <p className="text-sm text-muted-foreground mb-6 text-center max-w-md">
+                  Choose how you&apos;d like to set up your document templates.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <Button onClick={openNewTemplate}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create Template
-                  </Button>
-                  <Button variant="outline" onClick={() => setRequestServiceOpen(true)}>
-                    <Send className="h-4 w-4 mr-2" />
-                    Request Custom Design
-                  </Button>
+
+                <div className="grid gap-4 md:grid-cols-3 w-full max-w-3xl">
+                  {/* Standard Template Option */}
+                  <Card className="border-2 hover:border-blue-500 transition-colors cursor-pointer" onClick={useStandardTemplate}>
+                    <CardContent className="pt-6 text-center">
+                      <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <Check className="h-6 w-6 text-blue-600" />
+                      </div>
+                      <h4 className="font-medium mb-2">Use Standard Template</h4>
+                      <p className="text-xs text-muted-foreground">
+                        Get started instantly with FreightFlow&apos;s professional rate confirmation template
+                      </p>
+                      <Button className="mt-4 w-full" disabled={saving}>
+                        {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Use Standard'}
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  {/* Create Custom Option */}
+                  <Card className="border-2 hover:border-green-500 transition-colors cursor-pointer" onClick={openNewTemplate}>
+                    <CardContent className="pt-6 text-center">
+                      <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <Edit className="h-6 w-6 text-green-600" />
+                      </div>
+                      <h4 className="font-medium mb-2">Create Your Own</h4>
+                      <p className="text-xs text-muted-foreground">
+                        Design a custom template with your branding using our visual editor
+                      </p>
+                      <Button variant="outline" className="mt-4 w-full">
+                        Open Editor
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  {/* Request Design Option */}
+                  <Card className="border-2 hover:border-purple-500 transition-colors cursor-pointer" onClick={() => setRequestServiceOpen(true)}>
+                    <CardContent className="pt-6 text-center">
+                      <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <Send className="h-6 w-6 text-purple-600" />
+                      </div>
+                      <h4 className="font-medium mb-2">White Glove Service</h4>
+                      <p className="text-xs text-muted-foreground">
+                        Let our team create professional templates matching your brand
+                      </p>
+                      <Button variant="outline" className="mt-4 w-full">
+                        Request Design
+                      </Button>
+                    </CardContent>
+                  </Card>
                 </div>
-                <p className="text-xs text-muted-foreground mt-4">
-                  💡 Tip: Use a desktop computer for the best template editing experience
-                </p>
-                <p className="text-xs text-muted-foreground mt-2">
-                  Need help? Our team can create custom templates matching your brand for a one-time fee.
+
+                <p className="text-xs text-muted-foreground mt-6">
+                  Tip: Use a desktop computer for the best template editing experience
                 </p>
               </CardContent>
             </Card>
@@ -558,6 +624,8 @@ export function DocumentsClient({ templates, recentDocuments }: DocumentsClientP
         if (!open) {
           setRequestMessage('')
           setRequestSent(false)
+          setRequestLogo(null)
+          setLogoPreview(null)
         }
         setRequestServiceOpen(open)
       }}>
@@ -596,11 +664,58 @@ export function DocumentsClient({ templates, recentDocuments }: DocumentsClientP
               </div>
 
               <div className="space-y-2">
+                <Label>Your Company Logo</Label>
+                {logoPreview ? (
+                  <div className="relative inline-block">
+                    <img
+                      src={logoPreview}
+                      alt="Logo preview"
+                      className="h-20 max-w-[200px] object-contain border rounded-lg p-2 bg-white"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setRequestLogo(null)
+                        setLogoPreview(null)
+                      }}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <label className="flex items-center gap-2 px-4 py-2 border border-dashed rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
+                      <Upload className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">Upload Logo</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0]
+                          if (file) {
+                            setRequestLogo(file)
+                            const reader = new FileReader()
+                            reader.onloadend = () => {
+                              setLogoPreview(reader.result as string)
+                            }
+                            reader.readAsDataURL(file)
+                          }
+                        }}
+                      />
+                    </label>
+                    <span className="text-xs text-muted-foreground">PNG, JPG, or SVG</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-2">
                 <Label>Tell us about your needs</Label>
                 <Textarea
                   value={requestMessage}
                   onChange={(e) => setRequestMessage(e.target.value)}
-                  placeholder="Describe the templates you need, any specific branding requirements, examples you like, etc."
+                  placeholder="Describe the templates you need, any specific branding requirements, colors, fonts, examples you like, etc."
                   rows={4}
                 />
               </div>
@@ -613,10 +728,15 @@ export function DocumentsClient({ templates, recentDocuments }: DocumentsClientP
                   onClick={async () => {
                     setRequestSending(true)
                     try {
+                      const formData = new FormData()
+                      formData.append('message', requestMessage)
+                      if (requestLogo) {
+                        formData.append('logo', requestLogo)
+                      }
+
                       const response = await fetch('/api/request-custom-design', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ message: requestMessage })
+                        body: formData
                       })
                       if (!response.ok) throw new Error('Failed to send request')
                       setRequestSent(true)

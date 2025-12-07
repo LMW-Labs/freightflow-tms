@@ -15,8 +15,9 @@ function getSupabase() {
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json()
-    const { message } = body
+    const formData = await request.formData()
+    const message = formData.get('message') as string
+    const logo = formData.get('logo') as File | null
 
     const supabase = getSupabase()
 
@@ -50,6 +51,28 @@ export async function POST(request: Request) {
     // Get company info from env (the broker's company)
     companyName = process.env.NEXT_PUBLIC_COMPANY_NAME || 'Unknown Company'
 
+    // Upload logo to Supabase storage if provided
+    let logoUrl: string | null = null
+    if (logo && logo.size > 0) {
+      const fileExt = logo.name.split('.').pop()
+      const fileName = `design-requests/${Date.now()}-${companyName.replace(/\s+/g, '-')}.${fileExt}`
+
+      const arrayBuffer = await logo.arrayBuffer()
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('documents')
+        .upload(fileName, arrayBuffer, {
+          contentType: logo.type,
+          upsert: false
+        })
+
+      if (!uploadError && uploadData) {
+        const { data: urlData } = supabase.storage
+          .from('documents')
+          .getPublicUrl(fileName)
+        logoUrl = urlData.publicUrl
+      }
+    }
+
     // Send email to admin
     const resend = getResend()
     const { error: emailError } = await resend.emails.send({
@@ -79,8 +102,23 @@ export async function POST(request: Request) {
                   <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; color: #6b7280;">Email:</td>
                   <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; font-weight: 600;">${userEmail}</td>
                 </tr>
+                ${logoUrl ? `
+                <tr>
+                  <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; color: #6b7280;">Logo:</td>
+                  <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb;">
+                    <a href="${logoUrl}" style="color: #2563eb;">View Uploaded Logo</a>
+                  </td>
+                </tr>
+                ` : ''}
               </table>
             </div>
+
+            ${logoUrl ? `
+            <div style="background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; text-align: center;">
+              <h3 style="margin-top: 0; color: #374151;">Uploaded Logo</h3>
+              <img src="${logoUrl}" alt="Company Logo" style="max-width: 200px; max-height: 100px; object-fit: contain;" />
+            </div>
+            ` : ''}
 
             <div style="background: white; border-radius: 8px; padding: 20px;">
               <h3 style="margin-top: 0; color: #374151;">Customer Message:</h3>
