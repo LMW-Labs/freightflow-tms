@@ -51,6 +51,7 @@ import {
   X,
 } from 'lucide-react'
 import { TemplateEditor } from '@/components/template-editor/TemplateEditor'
+import { sampleLoadData } from '@/lib/template-variables'
 
 interface DocumentTemplate {
   id: string
@@ -245,6 +246,10 @@ export function DocumentsClient({ templates, recentDocuments }: DocumentsClientP
   const [requestLogo, setRequestLogo] = useState<File | null>(null)
   const [logoPreview, setLogoPreview] = useState<string | null>(null)
 
+  // Template preview state
+  const [previewOpen, setPreviewOpen] = useState(false)
+  const [previewTemplate, setPreviewTemplate] = useState<DocumentTemplate | null>(null)
+
   const resetForm = () => {
     setTemplateName('')
     setTemplateType('rate_confirmation')
@@ -266,7 +271,7 @@ export function DocumentsClient({ templates, recentDocuments }: DocumentsClientP
   const useStandardTemplate = async () => {
     setSaving(true)
     try {
-      const { error } = await supabase
+      const { error, data } = await supabase
         .from('document_templates')
         .insert({
           name: 'FreightFlow Standard Rate Confirmation',
@@ -277,8 +282,17 @@ export function DocumentsClient({ templates, recentDocuments }: DocumentsClientP
           page_orientation: 'portrait',
           is_default: true,
         })
+        .select()
+        .single()
 
       if (error) throw error
+
+      // Show preview of the created template
+      if (data) {
+        setPreviewTemplate(data)
+        setPreviewOpen(true)
+      }
+
       router.refresh()
     } catch (error) {
       console.error('Error creating standard template:', error)
@@ -286,6 +300,11 @@ export function DocumentsClient({ templates, recentDocuments }: DocumentsClientP
     } finally {
       setSaving(false)
     }
+  }
+
+  const openPreview = (template: DocumentTemplate) => {
+    setPreviewTemplate(template)
+    setPreviewOpen(true)
   }
 
   const openEditTemplate = (template: DocumentTemplate) => {
@@ -502,6 +521,14 @@ export function DocumentsClient({ templates, recentDocuments }: DocumentsClientP
                       {template.page_size} • {template.page_orientation} • Created {formatDate(template.created_at)}
                     </p>
                     <div className="flex gap-2 flex-wrap">
+                      <Button
+                        variant="default"
+                        size="sm"
+                        onClick={() => openPreview(template)}
+                      >
+                        <Eye className="h-3 w-3 mr-1" />
+                        Preview
+                      </Button>
                       <Button
                         variant="outline"
                         size="sm"
@@ -889,6 +916,81 @@ export function DocumentsClient({ templates, recentDocuments }: DocumentsClientP
               )}
               {editingTemplate ? 'Save Changes' : 'Create Template'}
             </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Template Preview Dialog */}
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent fullScreen className="overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Eye className="h-5 w-5" />
+              Preview: {previewTemplate?.name}
+            </DialogTitle>
+            <DialogDescription>
+              This is how your template will look with sample data filled in. The actual document will use real load data.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex-1 overflow-auto bg-gray-100 dark:bg-gray-900 rounded-lg p-4">
+            <div
+              className="bg-white mx-auto shadow-lg"
+              style={{
+                width: previewTemplate?.page_orientation === 'landscape' ? '11in' : '8.5in',
+                minHeight: previewTemplate?.page_orientation === 'landscape' ? '8.5in' : '11in',
+                padding: '0.75in',
+                maxWidth: '100%',
+              }}
+            >
+              {previewTemplate && (
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: previewTemplate.html_content.replace(
+                      /\{\{([^}]+)\}\}/g,
+                      (_, key) => {
+                        const value = sampleLoadData[key.trim() as keyof typeof sampleLoadData]
+                        return value !== undefined ? String(value) : `{{${key}}}`
+                      }
+                    ),
+                  }}
+                />
+              )}
+            </div>
+          </div>
+
+          <div className="flex justify-between gap-3 pt-4 border-t shrink-0">
+            <div className="flex gap-2">
+              <Badge variant="outline">
+                {templateTypes.find((t) => t.value === previewTemplate?.type)?.label}
+              </Badge>
+              <Badge variant="outline">
+                {previewTemplate?.page_size} • {previewTemplate?.page_orientation}
+              </Badge>
+              {previewTemplate?.is_default && (
+                <Badge className="bg-yellow-100 text-yellow-800">
+                  <Star className="h-3 w-3 mr-1 fill-yellow-500" />
+                  Default
+                </Badge>
+              )}
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setPreviewOpen(false)
+                  if (previewTemplate) {
+                    openEditTemplate(previewTemplate)
+                  }
+                }}
+              >
+                <Edit className="h-4 w-4 mr-2" />
+                Edit Template
+              </Button>
+              <Button onClick={() => setPreviewOpen(false)}>
+                Close
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
