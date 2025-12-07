@@ -235,6 +235,12 @@ export function DocumentsClient({ templates, recentDocuments }: DocumentsClientP
 
   const [deleting, setDeleting] = useState<string | null>(null)
 
+  // Service request state
+  const [requestServiceOpen, setRequestServiceOpen] = useState(false)
+  const [requestMessage, setRequestMessage] = useState('')
+  const [requestSending, setRequestSending] = useState(false)
+  const [requestSent, setRequestSent] = useState(false)
+
   const resetForm = () => {
     setTemplateName('')
     setTemplateType('rate_confirmation')
@@ -387,12 +393,16 @@ export function DocumentsClient({ templates, recentDocuments }: DocumentsClientP
                     <Plus className="h-4 w-4 mr-2" />
                     Create Template
                   </Button>
+                  <Button variant="outline" onClick={() => setRequestServiceOpen(true)}>
+                    <Send className="h-4 w-4 mr-2" />
+                    Request Custom Design
+                  </Button>
                 </div>
                 <p className="text-xs text-muted-foreground mt-4">
                   💡 Tip: Use a desktop computer for the best template editing experience
                 </p>
                 <p className="text-xs text-muted-foreground mt-2">
-                  Don't have a custom template? The system will use the default rate confirmation format.
+                  Need help? Our team can create custom templates matching your brand for a one-time fee.
                 </p>
               </CardContent>
             </Card>
@@ -543,12 +553,101 @@ export function DocumentsClient({ templates, recentDocuments }: DocumentsClientP
         </TabsContent>
       </Tabs>
 
+      {/* Request Custom Design Service Dialog */}
+      <Dialog open={requestServiceOpen} onOpenChange={(open) => {
+        if (!open) {
+          setRequestMessage('')
+          setRequestSent(false)
+        }
+        setRequestServiceOpen(open)
+      }}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Request Custom Template Design</DialogTitle>
+            <DialogDescription>
+              Our design team can create professional, branded document templates for you.
+            </DialogDescription>
+          </DialogHeader>
+
+          {requestSent ? (
+            <div className="flex flex-col items-center py-8">
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                <Check className="h-6 w-6 text-green-600" />
+              </div>
+              <h3 className="text-lg font-medium mb-2">Request Sent!</h3>
+              <p className="text-sm text-muted-foreground text-center">
+                We&apos;ll review your request and get back to you within 1-2 business days
+                with pricing and timeline.
+              </p>
+              <Button className="mt-6" onClick={() => setRequestServiceOpen(false)}>
+                Close
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                <h4 className="font-medium text-blue-800 dark:text-blue-200 mb-2">What&apos;s Included:</h4>
+                <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
+                  <li>• Professional design matching your brand</li>
+                  <li>• Rate Confirmation, BOL, Invoice templates</li>
+                  <li>• All dynamic variables pre-configured</li>
+                  <li>• Unlimited revisions until you&apos;re satisfied</li>
+                </ul>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Tell us about your needs</Label>
+                <Textarea
+                  value={requestMessage}
+                  onChange={(e) => setRequestMessage(e.target.value)}
+                  placeholder="Describe the templates you need, any specific branding requirements, examples you like, etc."
+                  rows={4}
+                />
+              </div>
+
+              <div className="flex justify-end gap-3">
+                <Button variant="outline" onClick={() => setRequestServiceOpen(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  onClick={async () => {
+                    setRequestSending(true)
+                    try {
+                      const response = await fetch('/api/request-custom-design', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message: requestMessage })
+                      })
+                      if (!response.ok) throw new Error('Failed to send request')
+                      setRequestSent(true)
+                    } catch (error) {
+                      console.error('Error sending request:', error)
+                      alert('Failed to send request. Please try again.')
+                    } finally {
+                      setRequestSending(false)
+                    }
+                  }}
+                  disabled={requestSending}
+                >
+                  {requestSending ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Send className="h-4 w-4 mr-2" />
+                  )}
+                  Send Request
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Template Editor Dialog - Full Screen */}
       <Dialog open={editorOpen} onOpenChange={(open) => {
         if (!open) resetForm()
         setEditorOpen(open)
       }}>
-        <DialogContent className="w-[95vw] max-w-[95vw] h-[90vh] max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogContent fullScreen className="overflow-hidden flex flex-col">
           <DialogHeader>
             <DialogTitle>
               {editingTemplate ? 'Edit Template' : 'Create New Template'}
