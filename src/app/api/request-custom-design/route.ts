@@ -75,8 +75,11 @@ export async function POST(request: Request) {
 
     // Send email to admin
     const resend = getResend()
+    const emailFrom = process.env.EMAIL_FROM || 'onboarding@resend.dev'
+    console.log('Sending email from:', emailFrom)
+
     const { error: emailError } = await resend.emails.send({
-      from: `FreightFlow <${process.env.EMAIL_FROM || 'noreply@resend.dev'}>`,
+      from: `FreightFlow <${emailFrom}>`,
       to: 'admin@faithfeed.ai',
       subject: `Custom Template Design Request - ${companyName}`,
       html: `

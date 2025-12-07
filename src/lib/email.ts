@@ -15,7 +15,7 @@ const COMPANY_NAME = process.env.NEXT_PUBLIC_COMPANY_NAME || 'FreightFlow'
 const COMPANY_ADDRESS = process.env.NEXT_PUBLIC_COMPANY_ADDRESS || ''
 const COMPANY_PHONE = process.env.NEXT_PUBLIC_COMPANY_PHONE || ''
 const COMPANY_EMAIL = process.env.NEXT_PUBLIC_COMPANY_EMAIL || ''
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || `${COMPANY_NAME} <noreply@example.com>`
+const FROM_EMAIL = process.env.EMAIL_FROM || process.env.RESEND_FROM_EMAIL || `${COMPANY_NAME} <onboarding@resend.dev>`
 const PLATFORM_ADMIN_EMAIL = 'admin@faithfeed.ai'
 
 export interface SendEmailOptions {

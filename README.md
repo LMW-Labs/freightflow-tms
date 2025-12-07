@@ -1,23 +1,27 @@
 # FreightFlow - A KHCL TMS
 
-A modern, full-featured Transportation Management System (TMS) for freight brokers. Built by KHCL with Next.js 14, Supabase, and Tailwind CSS.
+A modern, full-featured Transportation Management System (TMS) for freight brokers. Built by KHCL with Next.js 16, Supabase, and Tailwind CSS.
 
 ## Features
 
 ### Broker Dashboard
 - **Load Management**: Create, edit, and track shipments through their entire lifecycle
 - **Customer Management**: Maintain customer profiles with portal access
-- **Carrier Management**: Track carriers with MC/DOT numbers and contact info
+- **Carrier Management**: Full carrier profiles with W9, factoring, remittance, and equipment info
 - **Live GPS Tracking**: Real-time map view of all active loads
 - **Document Management**: Store and organize BOLs, PODs, rate confirmations, and invoices
+- **Document Templates**: Visual HTML template editor for custom rate cons, BOLs, and invoices
+- **Email Integration**: Send rate confirmations, tracking links, and notifications via Resend
 - **Status Workflow**: Full load lifecycle from quote to payment
+- **Team Management**: Invite staff with role-based permissions
 
 ### Customer Portal
 - **Auto-generated portals**: Each customer gets their own portal at `/portal/[company-slug]`
 - **Load visibility**: Customers see only their loads
+- **Load Request Form**: Customers can submit new shipment requests
 - **Real-time tracking**: Live GPS updates on shipments
 - **Document access**: Download PODs and other documents
-- **Branded experience**: Customizable per customer
+- **Branded experience**: White-label with custom logo and colors
 
 ### Driver PWA (Progressive Web App)
 - **Phone-based login**: Drivers authenticate via phone number
@@ -33,17 +37,36 @@ A modern, full-featured Transportation Management System (TMS) for freight broke
 
 ---
 
+### Document Templates
+- **Visual HTML Editor**: TipTap-powered rich text editor for creating custom templates
+- **Template Types**: Rate confirmations, BOLs, invoices, and custom documents
+- **Variable Placeholders**: Use `{{load_number}}`, `{{customer_name}}`, etc. for dynamic content
+- **Live Preview**: Preview templates with sample data before saving
+- **PDF Generation**: Convert HTML templates to professional PDFs via Puppeteer
+- **White Glove Service**: Request custom template designs from KHCL team
+
+### Email Integration
+- **Resend API**: Professional email delivery for all notifications
+- **Rate Confirmation Emails**: Send branded rate cons directly to carriers
+- **Tracking Link Emails**: Share public tracking URLs with customers
+- **Custom Design Requests**: Email-based workflow for white glove template service
+
+---
+
 ## Tech Stack
 
 | Layer | Technology |
 |-------|------------|
-| Framework | Next.js 14 (App Router) |
+| Framework | Next.js 15 (App Router) |
 | Database | Supabase (PostgreSQL) |
 | Auth | Supabase Auth |
 | Storage | Supabase Storage |
 | Realtime | Supabase Realtime |
 | Styling | Tailwind CSS + shadcn/ui |
 | Maps | Leaflet + OpenStreetMap (free) |
+| Rich Text Editor | TipTap |
+| PDF Generation | Puppeteer |
+| Email | Resend |
 | Hosting | Vercel |
 
 ---
@@ -90,6 +113,11 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
 # App
 NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_COMPANY_NAME=Your Company Name
+
+# Email (Resend)
+RESEND_API_KEY=re_xxxxxxxxxxxxx
+EMAIL_FROM=noreply@yourdomain.com
 ```
 
 ### 4. Set Up Database
@@ -148,6 +176,7 @@ Open [http://localhost:3000](http://localhost:3000)
 | `/carriers` | Carrier management |
 | `/carriers/new` | Add new carrier |
 | `/tracking` | Live GPS tracking map |
+| `/documents` | Document management and templates |
 | `/team` | Team management and staff invites |
 
 ### Customer Portal (Public/Auth)
@@ -262,7 +291,9 @@ tms-app/
 │   │   │   └── team/            # /team - Team management
 │   │   ├── api/                 # API routes
 │   │   │   ├── locations/       # GPS updates from drivers
-│   │   │   ├── documents/       # File uploads
+│   │   │   ├── documents/       # File uploads and PDF generation
+│   │   │   ├── send-rate-con/   # Email rate confirmations
+│   │   │   ├── request-custom-design/  # White glove service requests
 │   │   │   └── invites/         # Staff/customer invite handling
 │   │   ├── driver/              # /driver - Driver PWA
 │   │   ├── portal/              # Customer portals
@@ -284,6 +315,9 @@ tms-app/
 └── supabase/
     ├── schema.sql               # Main database schema
     ├── invites-schema.sql       # Invite system tables
+    ├── document-templates-schema.sql  # Template editor tables
+    ├── migrations/              # Database migrations
+    │   └── 20241207_expand_carriers.sql  # Extended carrier fields
     └── mock-data.sql            # Demo data for testing
 ```
 
@@ -305,8 +339,10 @@ tms-app/
 | `drivers` | Individual drivers |
 | `loads` | Shipments/freight |
 | `documents` | Uploaded files (BOL, POD, etc.) |
+| `document_templates` | Custom HTML templates for rate cons, BOLs, invoices |
 | `location_history` | GPS tracking points |
 | `status_history` | Load status changes |
+| `invites` | Staff and customer invitation tokens |
 
 ### Load Status Flow
 
@@ -332,11 +368,26 @@ quoted → booked → dispatched → en_route_pickup → at_pickup → loaded �
 ### Environment Variables for Production
 
 ```env
+# Supabase
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+
+# App
 NEXT_PUBLIC_APP_URL=https://your-app.vercel.app
+NEXT_PUBLIC_COMPANY_NAME=Your Company Name
+
+# Email (Resend) - Required for email features
+RESEND_API_KEY=re_xxxxxxxxxxxxx
+EMAIL_FROM=noreply@yourdomain.com
 ```
+
+### Setting Up Resend for Email
+
+1. Create an account at [resend.com](https://resend.com)
+2. Add and verify your domain (or use the free `onboarding@resend.dev` for testing)
+3. Create an API key and add it to your environment variables
+4. Update `EMAIL_FROM` to match your verified domain
 
 ---
 
@@ -389,6 +440,80 @@ Upload a document (multipart form data).
 | lat | number | No |
 | lng | number | No |
 
+### POST /api/documents/generate-pdf
+
+Generate a PDF from an HTML template.
+
+```json
+{
+  "html": "<html>...</html>",
+  "options": {
+    "format": "Letter",
+    "landscape": false
+  }
+}
+```
+
+### POST /api/send-rate-con
+
+Send a rate confirmation email to a carrier.
+
+```json
+{
+  "load_id": "uuid",
+  "carrier_email": "carrier@example.com",
+  "pdf_url": "https://..."
+}
+```
+
+### POST /api/request-custom-design
+
+Request a custom template design (multipart form data).
+
+| Field | Type | Required |
+|-------|------|----------|
+| message | string | Yes |
+| logo | File | No |
+
+---
+
+## Template Variables
+
+When creating document templates, use these placeholders:
+
+### Load Information
+| Variable | Description |
+|----------|-------------|
+| `{{load_number}}` | Load reference number |
+| `{{pickup_date}}` | Pickup date |
+| `{{delivery_date}}` | Delivery date |
+| `{{pickup_time}}` | Pickup time window |
+| `{{delivery_time}}` | Delivery time window |
+| `{{equipment_type}}` | Required equipment |
+| `{{commodity}}` | Freight description |
+| `{{weight}}` | Load weight |
+| `{{rate}}` | Carrier rate |
+
+### Origin/Destination
+| Variable | Description |
+|----------|-------------|
+| `{{origin_address}}` | Pickup street address |
+| `{{origin_city}}` | Pickup city |
+| `{{origin_state}}` | Pickup state |
+| `{{destination_address}}` | Delivery street address |
+| `{{destination_city}}` | Delivery city |
+| `{{destination_state}}` | Delivery state |
+
+### Carrier/Customer
+| Variable | Description |
+|----------|-------------|
+| `{{carrier_name}}` | Carrier company name |
+| `{{carrier_mc}}` | Carrier MC number |
+| `{{customer_name}}` | Customer/shipper name |
+| `{{broker_name}}` | Your company name |
+| `{{broker_phone}}` | Your contact phone |
+| `{{broker_email}}` | Your contact email |
+
 ---
 
 ## Security
@@ -416,11 +541,15 @@ All tables have RLS policies ensuring:
 
 ## Roadmap
 
-Future enhancements to consider:
+### Completed
+- [x] Email notifications via Resend
+- [x] Document template editor with PDF export
+- [x] White glove template design service
+- [x] Carrier onboarding with W9/factoring info
+- [x] Team management with role-based permissions
 
-- [ ] Email notifications (load updates, POD available)
+### Future Enhancements
 - [ ] SMS alerts for drivers
-- [ ] Invoice generation and PDF export
 - [ ] QuickBooks integration
 - [ ] Load board API integrations (DAT, Truckstop)
 - [ ] Route optimization
@@ -460,6 +589,18 @@ rm -rf .next
 npm run build
 ```
 
+### Email Not Sending
+
+- Verify `RESEND_API_KEY` is set in your environment
+- Check that `EMAIL_FROM` matches a verified domain in Resend
+- For local testing, use `onboarding@resend.dev` as the from address
+
+### Carrier Creation Fails
+
+Run the carrier migration to add all required columns:
+1. Go to Supabase SQL Editor
+2. Run the contents of `supabase/migrations/20241207_expand_carriers.sql`
+
 ---
 
 ## Contributing
@@ -487,6 +628,9 @@ This project is open source and available under the [MIT License](LICENSE).
 - [OpenStreetMap](https://www.openstreetmap.org/) - Map tiles
 - [Tailwind CSS](https://tailwindcss.com/) - Styling
 - [Lucide](https://lucide.dev/) - Icons
+- [TipTap](https://tiptap.dev/) - Rich text editor
+- [Resend](https://resend.com/) - Email API
+- [Puppeteer](https://pptr.dev/) - PDF generation
 
 ---
 
