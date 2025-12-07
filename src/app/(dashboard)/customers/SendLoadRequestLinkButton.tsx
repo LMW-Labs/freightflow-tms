@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Dialog,
   DialogContent,
@@ -10,38 +12,37 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { FileText, Copy, Check, ExternalLink, Send, Loader2 } from 'lucide-react'
-import { toast } from 'sonner'
+import { Send, Copy, Check, Loader2, ExternalLink } from 'lucide-react'
 
-interface SendOnboardingLinkButtonProps {
-  carrierId: string
-  carrierName: string
-  carrierEmail?: string | null
+interface SendLoadRequestLinkButtonProps {
+  customerSlug: string
+  customerName: string
+  customerEmail: string | null
 }
 
-export function SendOnboardingLinkButton({ carrierId, carrierName, carrierEmail }: SendOnboardingLinkButtonProps) {
+export function SendLoadRequestLinkButton({
+  customerSlug,
+  customerName,
+  customerEmail,
+}: SendLoadRequestLinkButtonProps) {
   const [open, setOpen] = useState(false)
   const [copied, setCopied] = useState(false)
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [email, setEmail] = useState(carrierEmail || '')
+  const [email, setEmail] = useState(customerEmail || '')
 
-  const onboardingUrl = typeof window !== 'undefined'
-    ? `${window.location.origin}/carrier-onboarding/${carrierId}`
-    : `/carrier-onboarding/${carrierId}`
+  const loadRequestUrl = typeof window !== 'undefined'
+    ? `${window.location.origin}/portal/${customerSlug}/request-load`
+    : `/portal/${customerSlug}/request-load`
 
-  const handleCopy = async () => {
+  const copyLink = async () => {
     try {
-      await navigator.clipboard.writeText(onboardingUrl)
+      await navigator.clipboard.writeText(loadRequestUrl)
       setCopied(true)
-      toast.success('Link copied to clipboard!')
       setTimeout(() => setCopied(false), 2000)
     } catch (err) {
       console.error('Failed to copy:', err)
-      toast.error('Failed to copy link')
     }
   }
 
@@ -55,11 +56,11 @@ export function SendOnboardingLinkButton({ carrierId, carrierName, carrierEmail 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          type: 'carrier_onboarding',
+          type: 'load_request_link',
           to: email,
           data: {
-            carrierName,
-            onboardingUrl,
+            customerName,
+            loadRequestUrl,
           },
         }),
       })
@@ -71,7 +72,6 @@ export function SendOnboardingLinkButton({ carrierId, carrierName, carrierEmail 
       }
 
       setSent(true)
-      toast.success('Onboarding email sent!')
       setTimeout(() => {
         setSent(false)
         setOpen(false)
@@ -79,7 +79,6 @@ export function SendOnboardingLinkButton({ carrierId, carrierName, carrierEmail 
     } catch (err) {
       console.error('Error sending email:', err)
       setError(err instanceof Error ? err.message : 'Failed to send email')
-      toast.error('Failed to send email')
     } finally {
       setSending(false)
     }
@@ -95,32 +94,33 @@ export function SendOnboardingLinkButton({ carrierId, carrierName, carrierEmail 
       }
     }}>
       <DialogTrigger asChild>
-        <Button variant="outline">
-          <FileText className="h-4 w-4 mr-2" />
-          Send Onboarding Link
+        <Button variant="ghost" size="sm" title="Send load request link">
+          <Send className="h-4 w-4" />
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Carrier Onboarding Link</DialogTitle>
+          <DialogTitle>Send Load Request Link</DialogTitle>
           <DialogDescription>
-            Share this link with {carrierName} to complete their onboarding.
+            Send {customerName} a link to request a new load
           </DialogDescription>
         </DialogHeader>
+
         <div className="space-y-4 pt-4">
-          {/* Onboarding URL */}
+          {/* Load Request URL */}
           <div className="space-y-2">
-            <Label>Onboarding Link</Label>
-            <div className="flex items-center gap-2">
+            <Label>Load Request Link</Label>
+            <div className="flex gap-2">
               <Input
-                value={onboardingUrl}
+                value={loadRequestUrl}
                 readOnly
-                className="flex-1 text-sm font-mono"
+                className="font-mono text-xs"
               />
               <Button
                 variant="outline"
                 size="icon"
-                onClick={handleCopy}
+                onClick={copyLink}
+                className="shrink-0"
               >
                 {copied ? (
                   <Check className="h-4 w-4 text-green-600" />
@@ -133,7 +133,11 @@ export function SendOnboardingLinkButton({ carrierId, carrierName, carrierEmail 
 
           {/* Quick Actions */}
           <div className="flex gap-2">
-            <Button variant="outline" onClick={handleCopy} className="flex-1">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={copyLink}
+            >
               {copied ? (
                 <>
                   <Check className="h-4 w-4 mr-2 text-green-600" />
@@ -146,8 +150,12 @@ export function SendOnboardingLinkButton({ carrierId, carrierName, carrierEmail 
                 </>
               )}
             </Button>
-            <Button variant="outline" asChild className="flex-1">
-              <a href={onboardingUrl} target="_blank" rel="noopener noreferrer">
+            <Button
+              variant="outline"
+              className="flex-1"
+              asChild
+            >
+              <a href={loadRequestUrl} target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="h-4 w-4 mr-2" />
                 Preview
               </a>
@@ -157,13 +165,13 @@ export function SendOnboardingLinkButton({ carrierId, carrierName, carrierEmail 
           {/* Email Section */}
           <div className="pt-4 border-t space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="carrier-email">Send via Email</Label>
+              <Label htmlFor="email">Send via Email</Label>
               <Input
-                id="carrier-email"
+                id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="carrier@example.com"
+                placeholder="customer@example.com"
               />
             </div>
 
@@ -188,10 +196,6 @@ export function SendOnboardingLinkButton({ carrierId, carrierName, carrierEmail 
               {sent ? 'Email Sent!' : sending ? 'Sending...' : 'Send Email'}
             </Button>
           </div>
-
-          <p className="text-xs text-muted-foreground">
-            The carrier will be able to update their information, upload documents, and sign the broker-carrier agreement.
-          </p>
         </div>
       </DialogContent>
     </Dialog>

@@ -175,7 +175,7 @@ export default async function CarrierDetailPage({ params }: CarrierDetailPagePro
               Edit
             </Link>
           </Button>
-          <SendOnboardingLinkButton carrierId={carrierData.id} carrierName={carrierData.company_name} />
+          <SendOnboardingLinkButton carrierId={carrierData.id} carrierName={carrierData.company_name} carrierEmail={carrierData.contact_email} />
         </div>
       </div>
 

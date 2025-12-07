@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge'
 import { Plus, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 import { InviteCustomerUserDialog } from './InviteCustomerUserDialog'
+import { SendLoadRequestLinkButton } from './SendLoadRequestLinkButton'
 
 export default async function CustomersPage() {
   const supabase = await createClient()
@@ -96,12 +97,17 @@ export default async function CustomersPage() {
                     {loadCountMap[customer.id] || 0}
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
+                      <SendLoadRequestLinkButton
+                        customerSlug={customer.slug}
+                        customerName={customer.company_name}
+                        customerEmail={customer.contact_email}
+                      />
                       <InviteCustomerUserDialog
                         customerId={customer.id}
                         customerName={customer.company_name}
                       />
-                      <Button variant="ghost" size="sm" asChild>
+                      <Button variant="ghost" size="sm" asChild title="View portal">
                         <Link href={`/portal/${customer.slug}`} target="_blank">
                           <ExternalLink className="h-4 w-4" />
                         </Link>

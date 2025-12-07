@@ -10,16 +10,22 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Send, Copy, Check, Smartphone, MessageSquare } from 'lucide-react'
+import { Label } from '@/components/ui/label'
+import { Send, Copy, Check, Smartphone, MessageSquare, Mail, Loader2 } from 'lucide-react'
 
 interface SendDriverLinkButtonProps {
   driverPhone: string
   driverName: string
+  driverEmail?: string | null
 }
 
-export function SendDriverLinkButton({ driverPhone, driverName }: SendDriverLinkButtonProps) {
+export function SendDriverLinkButton({ driverPhone, driverName, driverEmail }: SendDriverLinkButtonProps) {
   const [open, setOpen] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [sent, setSent] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [email, setEmail] = useState(driverEmail || '')
 
   const appUrl = typeof window !== 'undefined'
     ? `${window.location.origin}/driver`
@@ -40,6 +46,43 @@ export function SendDriverLinkButton({ driverPhone, driverName }: SendDriverLink
     window.open(smsUrl, '_blank')
   }
 
+  const handleSendEmail = async () => {
+    if (!email) return
+    setSending(true)
+    setError(null)
+
+    try {
+      const response = await fetch('/api/email/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'driver_app_link',
+          to: email,
+          data: {
+            driverName,
+            driverUrl: appUrl,
+          },
+        }),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to send email')
+      }
+
+      setSent(true)
+      setTimeout(() => {
+        setSent(false)
+      }, 3000)
+    } catch (err) {
+      console.error('Error sending email:', err)
+      setError(err instanceof Error ? err.message : 'Failed to send email')
+    } finally {
+      setSending(false)
+    }
+  }
+
   return (
     <>
       <Button variant="ghost" size="sm" onClick={() => setOpen(true)}>
@@ -47,7 +90,14 @@ export function SendDriverLinkButton({ driverPhone, driverName }: SendDriverLink
         Send App
       </Button>
 
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={(isOpen) => {
+        setOpen(isOpen)
+        if (!isOpen) {
+          setSent(false)
+          setCopied(false)
+          setError(null)
+        }
+      }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Send Driver App Link</DialogTitle>
@@ -61,9 +111,9 @@ export function SendDriverLinkButton({ driverPhone, driverName }: SendDriverLink
             <div>
               <p className="text-sm font-medium mb-2">Driver App Link</p>
               <div className="flex gap-2">
-                <Input value={appUrl} readOnly className="text-sm" />
+                <Input value={appUrl} readOnly className="text-sm font-mono" />
                 <Button onClick={handleCopy} variant="outline" className="shrink-0">
-                  {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                  {copied ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
                 </Button>
               </div>
             </div>
@@ -86,6 +136,38 @@ export function SendDriverLinkButton({ driverPhone, driverName }: SendDriverLink
                 Send SMS Text Message
               </Button>
 
+              {/* Email Section */}
+              <div className="space-y-2">
+                <div className="flex gap-2">
+                  <Input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="driver@example.com"
+                    className="flex-1"
+                  />
+                  <Button
+                    onClick={handleSendEmail}
+                    disabled={!email || sending || sent}
+                    className="shrink-0"
+                  >
+                    {sending ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : sent ? (
+                      <Check className="h-4 w-4" />
+                    ) : (
+                      <Mail className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+                {error && (
+                  <p className="text-xs text-red-600">{error}</p>
+                )}
+                {sent && (
+                  <p className="text-xs text-green-600">Email sent successfully!</p>
+                )}
+              </div>
+
               <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
                 <div className="flex items-start gap-3">
                   <Smartphone className="h-5 w-5 text-blue-600 mt-0.5" />
@@ -106,7 +188,7 @@ export function SendDriverLinkButton({ driverPhone, driverName }: SendDriverLink
 
             {/* Message Preview */}
             <div>
-              <p className="text-sm font-medium mb-2">Message Preview</p>
+              <p className="text-sm font-medium mb-2">SMS Message Preview</p>
               <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg text-sm text-gray-600 dark:text-gray-300">
                 {message}
               </div>
