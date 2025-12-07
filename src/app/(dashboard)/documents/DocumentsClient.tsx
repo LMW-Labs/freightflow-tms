@@ -49,6 +49,7 @@ import {
   Check,
   Upload,
   X,
+  ArrowLeft,
 } from 'lucide-react'
 import { TemplateEditor } from '@/components/template-editor/TemplateEditor'
 import { sampleLoadData } from '@/lib/template-variables'
@@ -417,14 +418,20 @@ export function DocumentsClient({ templates, recentDocuments }: DocumentsClientP
         </TabsList>
 
         <TabsContent value="templates" className="space-y-4">
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center flex-wrap gap-4">
             <p className="text-sm text-muted-foreground">
               Design templates using the visual editor. Insert variables like {`{{reference_number}}`} that get replaced with load data.
             </p>
-            <Button onClick={openNewTemplate}>
-              <Plus className="h-4 w-4 mr-2" />
-              Create Template
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => setRequestServiceOpen(true)}>
+                <Send className="h-4 w-4 mr-2" />
+                Request Custom Design
+              </Button>
+              <Button onClick={openNewTemplate}>
+                <Plus className="h-4 w-4 mr-2" />
+                Create Template
+              </Button>
+            </div>
           </div>
 
           {templates.length === 0 ? (
@@ -924,13 +931,26 @@ export function DocumentsClient({ templates, recentDocuments }: DocumentsClientP
       <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
         <DialogContent fullScreen className="overflow-hidden flex flex-col">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Eye className="h-5 w-5" />
-              Preview: {previewTemplate?.name}
-            </DialogTitle>
-            <DialogDescription>
-              This is how your template will look with sample data filled in. The actual document will use real load data.
-            </DialogDescription>
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setPreviewOpen(false)}
+                className="shrink-0"
+              >
+                <ArrowLeft className="h-4 w-4 mr-1" />
+                Back
+              </Button>
+              <div>
+                <DialogTitle className="flex items-center gap-2">
+                  <Eye className="h-5 w-5" />
+                  Preview: {previewTemplate?.name}
+                </DialogTitle>
+                <DialogDescription>
+                  This is how your template will look with sample data filled in. The actual document will use real load data.
+                </DialogDescription>
+              </div>
+            </div>
           </DialogHeader>
 
           <div className="flex-1 overflow-auto bg-gray-100 dark:bg-gray-900 rounded-lg p-4">
