@@ -5,17 +5,21 @@ import { Package, MapPin, Users, ArrowRight, Brain, TrendingUp, Shield } from 'l
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-blue-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-b from-[#050508] via-[#0a0a12] to-[#050508]">
       {/* Hero */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
         <div className="text-center">
-          <div className="flex justify-center mb-8">
+          <div className="flex justify-center mb-8 relative">
+            {/* Glow effect behind logo */}
+            <div className="absolute inset-0 flex justify-center items-center">
+              <div className="w-48 h-48 bg-gradient-to-r from-purple-600/40 via-teal-500/30 to-purple-600/40 rounded-full blur-3xl" />
+            </div>
             <Image
               src="/logo.png"
               alt="VectrLoadAI Logo"
               width={140}
               height={140}
-              className="rounded-2xl"
+              className="rounded-2xl relative z-10"
             />
           </div>
           <h1 className="text-4xl sm:text-6xl font-bold text-white mb-4">
