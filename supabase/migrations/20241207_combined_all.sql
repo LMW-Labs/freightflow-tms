@@ -158,7 +158,7 @@ CREATE TRIGGER trigger_organizations_updated_at
 
 
 -- ============================================
--- 4. ADD NEW USER ROLES
+-- 4. ADD NEW USER ROLES + AVATAR
 -- ============================================
 
 -- Drop the existing constraint and add new one with additional roles
@@ -170,6 +170,51 @@ ALTER TABLE users ADD CONSTRAINT users_role_check
 ALTER TABLE staff_invites DROP CONSTRAINT IF EXISTS staff_invites_role_check;
 ALTER TABLE staff_invites ADD CONSTRAINT staff_invites_role_check
   CHECK (role IN ('admin', 'broker', 'dispatcher', 'salesperson_1', 'salesperson_2', 'accountant'));
+
+-- Add avatar_url to users table
+ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT;
+
+
+-- ============================================
+-- 5. CREATE AVATARS STORAGE BUCKET
+-- ============================================
+-- NOTE: Run this separately in Supabase Dashboard > Storage > Create Bucket
+-- Bucket name: avatars
+-- Public bucket: Yes (for public avatar URLs)
+-- Or run this SQL:
+
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('avatars', 'avatars', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Allow public access to avatars
+CREATE POLICY "Avatar images are publicly accessible"
+ON storage.objects FOR SELECT
+USING (bucket_id = 'avatars');
+
+-- Allow authenticated users to upload their own avatars
+CREATE POLICY "Users can upload their own avatar"
+ON storage.objects FOR INSERT
+WITH CHECK (
+  bucket_id = 'avatars'
+  AND auth.role() = 'authenticated'
+);
+
+-- Allow users to update their own avatars
+CREATE POLICY "Users can update their own avatar"
+ON storage.objects FOR UPDATE
+USING (
+  bucket_id = 'avatars'
+  AND auth.role() = 'authenticated'
+);
+
+-- Allow users to delete their own avatars
+CREATE POLICY "Users can delete their own avatar"
+ON storage.objects FOR DELETE
+USING (
+  bucket_id = 'avatars'
+  AND auth.role() = 'authenticated'
+);
 
 
 -- ============================================
