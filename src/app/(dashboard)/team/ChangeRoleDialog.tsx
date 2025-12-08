@@ -34,6 +34,9 @@ interface ChangeRoleDialogProps {
 const roles = [
   { value: 'admin', label: 'Admin', description: 'Full access to all features and settings' },
   { value: 'broker', label: 'Broker', description: 'Manage loads, customers, and carriers' },
+  { value: 'dispatcher', label: 'Dispatcher', description: 'Manage loads, assign carriers, track shipments' },
+  { value: 'salesperson_1', label: 'Salesperson 1', description: 'Manage customers and sales opportunities' },
+  { value: 'salesperson_2', label: 'Salesperson 2', description: 'Manage customers and sales opportunities' },
   { value: 'accountant', label: 'Accountant', description: 'View loads, manage invoices and billing' },
 ]
 

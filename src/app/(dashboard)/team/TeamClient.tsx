@@ -50,6 +50,12 @@ export function TeamClient({ teamMembers, pendingInvites, currentUserId, isAdmin
         return <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-100">Admin</Badge>
       case 'broker':
         return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">Broker</Badge>
+      case 'dispatcher':
+        return <Badge className="bg-orange-100 text-orange-800 hover:bg-orange-100">Dispatcher</Badge>
+      case 'salesperson_1':
+        return <Badge className="bg-cyan-100 text-cyan-800 hover:bg-cyan-100">Salesperson 1</Badge>
+      case 'salesperson_2':
+        return <Badge className="bg-teal-100 text-teal-800 hover:bg-teal-100">Salesperson 2</Badge>
       case 'accountant':
         return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Accountant</Badge>
       default:

@@ -149,13 +149,16 @@ export function InviteStaffDialog() {
                   <SelectValue placeholder="Select a role" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="broker">Broker</SelectItem>
-                  <SelectItem value="accountant">Accountant</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value="broker">Broker</SelectItem>
+                  <SelectItem value="dispatcher">Dispatcher</SelectItem>
+                  <SelectItem value="salesperson_1">Salesperson 1</SelectItem>
+                  <SelectItem value="salesperson_2">Salesperson 2</SelectItem>
+                  <SelectItem value="accountant">Accountant</SelectItem>
                 </SelectContent>
               </Select>
               <p className="text-xs text-gray-500">
-                Admins can manage team members and settings. Brokers manage loads and customers.
+                Admins have full access. Brokers and Dispatchers manage loads. Salespersons manage customers.
               </p>
             </div>
             {error && (
