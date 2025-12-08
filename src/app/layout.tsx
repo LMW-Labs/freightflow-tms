@@ -13,6 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://vectrloadai-tms.vercel.app"),
   title: {
     default: "VectrLoadAI - Intelligent Freight Management",
     template: "%s | VectrLoadAI",
