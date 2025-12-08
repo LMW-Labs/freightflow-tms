@@ -31,7 +31,7 @@ export function SendDriverLinkButton({ driverPhone, driverName, driverEmail }: S
     ? `${window.location.origin}/driver`
     : '/driver'
 
-  const message = `Hi ${driverName}! Download the FreightFlow driver app to track your loads and update status. Open this link on your phone: ${appUrl} - Login with your phone number: ${driverPhone}`
+  const message = `Hi ${driverName}! Download the VectrLoadAI driver app to track your loads and update status. Open this link on your phone: ${appUrl} - Login with your phone number: ${driverPhone}`
 
   const handleCopy = () => {
     navigator.clipboard.writeText(appUrl)

@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
       ? invoice.customer?.company_name
       : invoice.carrier?.company_name
 
-    const subject = `Invoice ${invoice.invoice_number} from ${organization?.name || 'FreightFlow'}`
+    const subject = `Invoice ${invoice.invoice_number} from ${organization?.name || 'VectrLoadAI'}`
 
     const loadInfo = invoice.load
       ? `Load: ${invoice.load.reference_number} (${invoice.load.origin_city}, ${invoice.load.origin_state} → ${invoice.load.dest_city}, ${invoice.load.dest_state})`
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
       <body>
         <div class="container">
           <div class="header">
-            <h1>${organization?.name || 'FreightFlow'}</h1>
+            <h1>${organization?.name || 'VectrLoadAI'}</h1>
           </div>
 
           <div class="content">
@@ -121,7 +121,7 @@ export async function POST(request: NextRequest) {
           </div>
 
           <div class="footer">
-            <p>${organization?.name || 'FreightFlow'}</p>
+            <p>${organization?.name || 'VectrLoadAI'}</p>
             ${organization?.email ? `<p>Email: ${organization.email}</p>` : ''}
             ${organization?.phone ? `<p>Phone: ${organization.phone}</p>` : ''}
           </div>

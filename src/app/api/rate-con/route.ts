@@ -12,7 +12,7 @@ function getSupabase() {
 
 // Broker info from env - configurable per deployment
 const BROKER_INFO = {
-  name: process.env.NEXT_PUBLIC_COMPANY_NAME || 'FreightFlow',
+  name: process.env.NEXT_PUBLIC_COMPANY_NAME || 'VectrLoadAI',
   address: process.env.NEXT_PUBLIC_BROKER_ADDRESS || '',
   cityStateZip: process.env.NEXT_PUBLIC_BROKER_CITY_STATE_ZIP || '',
   mc: process.env.NEXT_PUBLIC_BROKER_MC || '',

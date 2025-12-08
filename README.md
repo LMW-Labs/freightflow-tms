@@ -1,6 +1,6 @@
-# FreightFlow - A KHCL TMS
+# VectrLoadAI - Intelligent Freight Management
 
-A modern, full-featured Transportation Management System (TMS) for freight brokers. Built by KHCL with Next.js 16, Supabase, and Tailwind CSS.
+An AI-powered Transportation Management System (TMS) for freight brokers. Built with Next.js 16, Supabase, and Tailwind CSS. Features intelligent integrations, real-time tracking, and upcoming AI-powered automation.
 
 ## Features
 
@@ -43,7 +43,7 @@ A modern, full-featured Transportation Management System (TMS) for freight broke
 - **Variable Placeholders**: Use `{{load_number}}`, `{{customer_name}}`, etc. for dynamic content
 - **Live Preview**: Preview templates with sample data before saving
 - **PDF Generation**: Convert HTML templates to professional PDFs via Puppeteer
-- **White Glove Service**: Request custom template designs from KHCL team
+- **White Glove Service**: Request custom template designs from VectrLoadAI team
 
 ### Email Integration
 - **Resend API**: Professional email delivery for all notifications
@@ -57,17 +57,23 @@ A modern, full-featured Transportation Management System (TMS) for freight broke
 
 | Layer | Technology |
 |-------|------------|
-| Framework | Next.js 15 (App Router) |
+| Framework | Next.js 16 (App Router) |
+| React | React 19 |
+| Language | TypeScript |
 | Database | Supabase (PostgreSQL) |
 | Auth | Supabase Auth |
 | Storage | Supabase Storage |
 | Realtime | Supabase Realtime |
-| Styling | Tailwind CSS + shadcn/ui |
+| Styling | Tailwind CSS 4 + shadcn/ui |
+| Charts | Recharts |
 | Maps | Leaflet + OpenStreetMap (free) |
 | Rich Text Editor | TipTap |
 | PDF Generation | Puppeteer |
 | Email | Resend |
+| Icons | Lucide React |
 | Hosting | Vercel |
+| Integrations | QuickBooks, DAT, Truckstop, Highway, Macropoint, Denim |
+| AI (Phase 2) | OpenAI, Anthropic Claude |
 
 ---
 
@@ -516,6 +522,194 @@ When creating document templates, use these placeholders:
 
 ---
 
+## Third-Party Integrations
+
+VectrLoadAI supports a modular integration layer for essential broker services. Each integration connects to existing modules (Loads, Carriers, Accounting).
+
+### Integration Architecture
+
+```
+/lib/integrations/
+├── core/
+│   ├── types.ts          # Provider configs, shared types
+│   ├── encryption.ts     # AES-256-GCM credential encryption
+│   ├── logger.ts         # Sync logging utilities
+│   ├── base-client.ts    # Abstract client classes with retry/error handling
+│   └── index.ts
+├── quickbooks/           # OAuth2 flow, customer/invoice sync
+├── dat/                  # Rate lookups, load posting
+├── truckstop/            # Rate lookups, load posting
+├── highway/              # Carrier verification
+├── macropoint/           # Tracking sessions
+└── denim/                # Carrier payments
+```
+
+### Supported Integrations
+
+| Provider | Category | Auth Type | Features |
+|----------|----------|-----------|----------|
+| **QuickBooks Online** | Accounting | OAuth2 | Sync customers to QBO, push invoices as QBO invoices, push carrier payments as bills, pull payment status |
+| **DAT Load Board** | Load Boards | API Key | Search market rates by lane, post loads, pull rate history for margin calculations |
+| **Truckstop** | Load Boards | API Key | Search market rates, post loads, aggregate rate data |
+| **Highway** | Carrier Vetting | API Key | Auto-verify MC/DOT authority, insurance status, safety scores, flag expired/revoked carriers |
+| **Macropoint** | Tracking | API Key | Request tracking by load, receive location webhooks, ETA updates |
+| **Denim** | Payments | API Key | Initiate carrier payments, quick pay options, payment status webhooks |
+
+### Database Tables for Integrations
+
+| Table | Purpose |
+|-------|---------|
+| `organization_integrations` | OAuth tokens, API credentials per organization (encrypted) |
+| `integration_sync_logs` | Detailed history of all sync operations |
+| `rate_lookups` | DAT/Truckstop rate data for margin analysis |
+| `carrier_verifications` | Highway verification results per carrier |
+| `tracking_sessions` | Macropoint tracking sessions per load |
+| `carrier_payments` | Denim payment records |
+
+### Integration Environment Variables
+
+```env
+# QuickBooks (OAuth2)
+QUICKBOOKS_CLIENT_ID=
+QUICKBOOKS_CLIENT_SECRET=
+QUICKBOOKS_REDIRECT_URI=https://your-app.com/api/integrations/quickbooks/callback
+
+# Load Boards
+DAT_API_KEY=
+DAT_API_SECRET=
+TRUCKSTOP_API_KEY=
+
+# Carrier Vetting
+HIGHWAY_API_KEY=
+
+# Tracking
+MACROPOINT_API_KEY=
+MACROPOINT_WEBHOOK_SECRET=
+
+# Payments
+DENIM_API_KEY=
+DENIM_WEBHOOK_SECRET=
+
+# Security (32-byte hex key for AES-256-GCM)
+INTEGRATION_ENCRYPTION_KEY=your-32-byte-hex-encryption-key
+```
+
+### Managing Integrations
+
+1. Go to **Settings** > **Integrations**
+2. Click **Connect** on any integration card
+3. For OAuth providers (QuickBooks), you'll be redirected to authorize
+4. For API key providers, enter your credentials in the dialog
+5. Once connected, use **Sync** to manually trigger data sync
+6. View sync history via **View Logs**
+
+### Integration Usage Examples
+
+```typescript
+// QuickBooks - Push invoice to QBO
+import { pushInvoiceToQuickBooks } from '@/lib/integrations/quickbooks'
+await pushInvoiceToQuickBooks(integrationId, organizationId, invoiceId)
+
+// DAT - Get market rate for a lane
+import { getRateForLane } from '@/lib/integrations/dat'
+const rate = await getRateForLane(organizationId,
+  { city: 'Chicago', state: 'IL' },
+  { city: 'Dallas', state: 'TX' },
+  'van'
+)
+
+// Highway - Verify carrier authority and insurance
+import { verifyCarrier } from '@/lib/integrations/highway'
+const verification = await verifyCarrier(carrierId, organizationId)
+
+// Macropoint - Start real-time tracking
+import { startLoadTracking, getLoadLocation } from '@/lib/integrations/macropoint'
+await startLoadTracking(loadId, organizationId)
+const location = await getLoadLocation(loadId, organizationId)
+
+// Denim - Create carrier payment
+import { createCarrierPayment } from '@/lib/integrations/denim'
+await createCarrierPayment(loadId, organizationId, {
+  payment_method: 'ach',
+  use_quickpay: true  // Enable QuickPay discount
+})
+```
+
+### Webhooks
+
+Configure webhook endpoints in your integration settings:
+
+| Provider | Endpoint | Events |
+|----------|----------|--------|
+| Macropoint | `/api/webhooks/macropoint` | Location updates, ETA changes, geofence events |
+| Denim | `/api/webhooks/denim` | Payment status updates, bank verification |
+
+---
+
+## Phase 2: AI Integration (Coming Soon)
+
+The next major phase introduces AI capabilities to **increase margins** and **reduce admin time**.
+
+### AI-Powered Features
+
+#### 1. Smart Rate Suggestions
+- Analyze historical rate data from DAT/Truckstop
+- Lane-based pricing recommendations based on market trends
+- Margin optimization suggestions (when to negotiate, when to accept)
+- Predict market rate movements for better timing
+
+#### 2. Automated Document Processing
+- OCR extraction from BOLs, PODs, carrier invoices
+- Auto-extract: load numbers, amounts, dates, addresses
+- Automatically match documents to correct loads
+- Flag discrepancies between documents and load data
+- Reduce manual data entry by 80%+
+
+#### 3. AI-Powered Carrier Matching
+- Recommend best carriers for each lane based on:
+  - Historical rates and reliability
+  - Equipment availability
+  - Current location
+  - Safety scores and insurance status
+- Predict carrier availability before reaching out
+- Optimize carrier-load assignments for fleet utilization
+
+#### 4. Invoice Automation
+- Auto-generate invoices from delivered loads
+- Smart document package assembly (invoice + BOL + POD)
+- Automated factoring submission with audit trail
+- Payment reminder scheduling based on customer history
+
+#### 5. Load Optimization
+- Suggest optimal routing for multi-stop loads
+- Identify consolidation opportunities
+- Minimize deadhead miles with backhaul suggestions
+- Fuel cost optimization based on routes and fuel prices
+
+#### 6. Communication Automation
+- Auto-generate rate confirmations from load data
+- Carrier booking confirmations with all required details
+- Customer load updates at key milestones
+- Tracking notification emails to stakeholders
+- Smart email templates that learn your tone
+
+#### 7. Anomaly Detection
+- Flag unusual rate requests (too high/low for lane)
+- Detect potential fraud patterns in documents
+- Insurance expiration warnings before loads are booked
+- Authority status alerts (carrier went inactive)
+- Double-brokering risk detection
+
+### AI Environment Variables
+
+```env
+# AI Providers (Phase 2)
+OPENAI_API_KEY=sk-...
+ANTHROPIC_API_KEY=sk-ant-...
+```
+
+---
+
 ## Security
 
 ### Row Level Security (RLS)
@@ -547,11 +741,30 @@ All tables have RLS policies ensuring:
 - [x] White glove template design service
 - [x] Carrier onboarding with W9/factoring info
 - [x] Team management with role-based permissions
+- [x] Accounting module with invoice management
+- [x] Document audit workflow for factoring
+- [x] Integration framework with encryption
+
+### Completed - Phase 1 Integrations
+- [x] Integration settings UI and API routes
+- [x] QuickBooks Online (OAuth2, customer/invoice sync)
+- [x] DAT Load Board (market rates with 4-hour caching)
+- [ ] Truckstop (market rates, load posting) - Similar to DAT
+- [x] Highway (carrier vetting, insurance verification)
+- [x] Macropoint (real-time GPS tracking, webhooks)
+- [x] Denim (carrier payments, QuickPay, batch payments)
+
+### Future - Phase 2 AI Integration
+- [ ] Smart rate suggestions with margin optimization
+- [ ] Automated document processing (OCR)
+- [ ] AI-powered carrier matching
+- [ ] Invoice automation
+- [ ] Load optimization and routing
+- [ ] Communication automation
+- [ ] Anomaly detection and fraud prevention
 
 ### Future Enhancements
 - [ ] SMS alerts for drivers
-- [ ] QuickBooks integration
-- [ ] Load board API integrations (DAT, Truckstop)
 - [ ] Route optimization
 - [ ] Fuel cost calculations
 - [ ] Driver pay settlements
@@ -634,6 +847,6 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ---
 
-**FreightFlow** is a KHCL proprietary product.
+**VectrLoadAI** - Intelligent Freight Management
 
 Built with AI assistance to prove that the future of software development is accessible to everyone.

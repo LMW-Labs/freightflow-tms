@@ -79,7 +79,7 @@ export async function POST(request: Request) {
     console.log('Sending email from:', emailFrom)
 
     const { error: emailError } = await resend.emails.send({
-      from: `FreightFlow <${emailFrom}>`,
+      from: `VectrLoadAI <${emailFrom}>`,
       to: 'admin@faithfeed.ai',
       subject: `Custom Template Design Request - ${companyName}`,
       html: `
@@ -138,7 +138,7 @@ export async function POST(request: Request) {
           </div>
 
           <div style="padding: 20px; text-align: center; color: #9ca3af; font-size: 12px;">
-            FreightFlow TMS - White Glove Service Request
+            VectrLoadAI - White Glove Service Request
           </div>
         </div>
       `,

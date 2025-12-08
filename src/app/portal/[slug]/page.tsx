@@ -94,7 +94,7 @@ export default async function PortalPage({ params }: PortalPageProps) {
             Hello {customer.contact_name?.split(' ')[0] || customer.company_name}!
           </h1>
           <p className="text-white/90 text-lg">
-            Welcome to your customized FreightFlow portal.
+            Welcome to your customized VectrLoadAI portal.
           </p>
           {customer.contact_name && (
             <p className="text-white/70 text-sm mt-2">

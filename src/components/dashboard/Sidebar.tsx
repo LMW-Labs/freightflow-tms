@@ -59,12 +59,12 @@ export function Sidebar() {
       <div className="flex h-16 items-center gap-2 px-6 border-b">
         <Image
           src="/logo.png"
-          alt="FreightFlow"
+          alt="VectrLoadAI"
           width={32}
           height={32}
           className="rounded"
         />
-        <span className="font-bold text-lg">FreightFlow</span>
+        <span className="font-bold text-lg">VectrLoad<span className="text-blue-500">AI</span></span>
       </div>
 
       {/* Navigation */}

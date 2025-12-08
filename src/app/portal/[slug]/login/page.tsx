@@ -114,7 +114,7 @@ export default function PortalLoginPage({ params }: PortalLoginPageProps) {
           <div className="mt-8 pt-6 border-t text-center">
             <div className="flex items-center justify-center gap-2 text-sm text-gray-400">
               <Truck className="h-4 w-4" />
-              <span>Powered by FreightFlow</span>
+              <span>Powered by VectrLoadAI</span>
             </div>
           </div>
         </CardContent>

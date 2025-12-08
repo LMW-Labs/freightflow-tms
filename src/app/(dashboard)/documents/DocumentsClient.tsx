@@ -275,7 +275,7 @@ export function DocumentsClient({ templates, recentDocuments }: DocumentsClientP
       const { error, data } = await supabase
         .from('document_templates')
         .insert({
-          name: 'FreightFlow Standard Rate Confirmation',
+          name: 'VectrLoadAI Standard Rate Confirmation',
           type: 'rate_confirmation',
           description: 'Professional rate confirmation template with all essential fields',
           html_content: defaultRateConTemplate,
@@ -452,7 +452,7 @@ export function DocumentsClient({ templates, recentDocuments }: DocumentsClientP
                       </div>
                       <h4 className="font-medium mb-2">Use Standard Template</h4>
                       <p className="text-xs text-muted-foreground">
-                        Get started instantly with FreightFlow&apos;s professional rate confirmation template
+                        Get started instantly with VectrLoadAI&apos;s professional rate confirmation template
                       </p>
                       <Button className="mt-4 w-full" disabled={saving}>
                         {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Use Standard'}

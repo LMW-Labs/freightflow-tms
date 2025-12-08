@@ -189,7 +189,7 @@ export default function ShipperViewPage({ params }: ShipperViewPageProps) {
                 </div>
               )}
               <div>
-                <h1 className="font-bold text-gray-900">{organization?.name || 'FreightFlow TMS'}</h1>
+                <h1 className="font-bold text-gray-900">{organization?.name || 'VectrLoadAI'}</h1>
                 <p className="text-sm text-gray-500">Shipment Details</p>
               </div>
             </div>

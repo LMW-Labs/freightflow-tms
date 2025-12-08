@@ -1,0 +1,183 @@
+# FreightFlow TMS — Broker Essentials Integration Layer
+
+## Existing Stack
+- **Frontend:** Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS 4, shadcn/ui, Lucide React, date-fns, Sonner
+- **Backend:** Next.js Route Handlers
+- **Database:** Supabase PostgreSQL with Row Level Security
+- **Auth:** Supabase Auth (email/password)
+- **Storage:** Supabase Storage
+- **Realtime:** Supabase Realtime subscriptions
+- **Email:** Resend
+
+## Existing Modules
+Loads, Customers, Carriers, Accounting, Documents, Live Tracking, Team, Settings, Profile
+
+## Roles
+admin, broker, dispatcher, salesperson_1, salesperson_2, accountant
+
+---
+
+## What We're Building
+A modular integration layer for essential third-party broker services. Each integration connects to our existing modules (Loads, Carriers, Accounting, etc.).
+
+---
+
+## Phase 1 Integrations
+
+### 1. QuickBooks Online (Accounting)
+**Connect to:** Accounting module
+- OAuth2 connection flow with token refresh
+- Sync customers from our Customers table → QBO Customers
+- Push invoices from our Accounting module → QBO Invoices
+- Push carrier payments as Bills
+- Pull payment status back to update our records
+- Webhook receiver for payment notifications
+
+### 2. DAT Load Board (Rates + Posting)
+**Connect to:** Loads module
+- Authenticate via DAT API credentials
+- Search market rates by origin/destination/equipment type
+- Post loads directly from our Loads table
+- Pull rate history for lane-based pricing suggestions
+- Store rate lookups for margin calculations
+
+### 3. Truckstop (Rates + Posting)
+**Connect to:** Loads module
+- Same functionality as DAT
+- Allow broker to choose which board(s) to post to
+- Aggregate rate data from both sources
+
+### 4. Highway (Carrier Vetting)
+**Connect to:** Carriers module
+- API key authentication
+- Auto-verify carrier during onboarding: MC/DOT authority, insurance, safety score
+- Store verification results in carrier record
+- Flag carriers with expired insurance or revoked authority
+- Re-verify on schedule (weekly cron or on-demand)
+- Block booking if carrier fails vetting
+
+### 5. Macropoint (Load Tracking)
+**Connect to:** Loads module, Live Tracking module
+- Request tracking by load ID + carrier info
+- Receive location webhooks → update our Live Tracking
+- Display tracking status in Load detail view
+- Handle tracking start/stop lifecycle
+- Store location history in Supabase
+
+### 6. Denim (Carrier Payments)
+**Connect to:** Accounting module, Carriers module
+- OAuth or API key auth
+- Initiate carrier payment from completed load
+- Quick pay option (carrier gets paid faster, we take fee)
+- Payment status webhooks → update our Accounting records
+- Show payment status on Load detail
+
+---
+
+## Technical Requirements
+
+### Database (Supabase)
+Create these tables with RLS policies:
+```sql
+
+/lib/integrations/
+/core/
+base-client.ts        -- Abstract base with retry, error handling
+types.ts              -- Shared types
+encryption.ts         -- Encrypt/decrypt credentials
+logger.ts             -- Sync logging utility
+/quickbooks/
+client.ts
+auth.ts               -- OAuth flow
+sync-customers.ts
+sync-invoices.ts
+webhooks.ts
+/dat/
+client.ts
+rates.ts
+post-load.ts
+/truckstop/
+client.ts
+rates.ts
+post-load.ts
+/highway/
+client.ts
+verify-carrier.ts
+/macropoint/
+client.ts
+request-tracking.ts
+webhooks.ts
+/denim/
+client.ts
+payments.ts
+webhooks.ts
+/app/api/integrations/
+/quickbooks/
+/connect/route.ts     -- Start OAuth
+/callback/route.ts    -- OAuth callback
+/webhook/route.ts
+/dat/
+/rates/route.ts
+/post/route.ts
+/truckstop/
+/rates/route.ts
+/post/route.ts
+/highway/
+/verify/route.ts
+/macropoint/
+/track/route.ts
+/webhook/route.ts
+/denim/
+/pay/route.ts
+/webhook/route.ts
+/app/(dashboard)/settings/integrations/
+page.tsx                -- List all integrations with connect/disconnect
+/[provider]/
+page.tsx              -- Provider-specific settings
+/components/integrations/
+integration-card.tsx
+connect-button.tsx
+sync-status.tsx
+rate-lookup.tsx
+carrier-vetting-badge.tsx
+tracking-map.tsx
+payment-status.tsx
+
+### API Route Patterns
+- Use Next.js Route Handlers
+- Validate with Zod
+- Check Supabase auth session
+- Check user role permissions (admin, broker can manage integrations)
+- Return consistent error format
+
+### UI Components
+- Use shadcn/ui components
+- Toast notifications via Sonner
+- Integration cards showing connection status, last sync, errors
+- Settings page at /settings/integrations
+
+### Environment Variables
+
+QUICKBOOKS_CLIENT_ID=
+QUICKBOOKS_CLIENT_SECRET=
+QUICKBOOKS_REDIRECT_URI=
+DAT_API_KEY=
+DAT_API_SECRET=
+TRUCKSTOP_API_KEY=
+HIGHWAY_API_KEY=
+MACROPOINT_API_KEY=
+MACROPOINT_WEBHOOK_SECRET=
+DENIM_API_KEY=
+DENIM_WEBHOOK_SECRET=
+INTEGRATION_ENCRYPTION_KEY=  # For encrypting stored credentials
+
+---
+
+## Start With
+1. Create the database tables and RLS policies
+2. Build `/lib/integrations/core/` with base client, types, encryption
+3. Build the integrations settings UI at `/settings/integrations`
+4. Implement QuickBooks OAuth flow first (most complex auth)
+5. Then we'll add the others one by one
+
+Ask me any clarifying questions about the existing codebase structure before starting.

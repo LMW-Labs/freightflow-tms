@@ -1,7 +1,7 @@
 {
-  "name": "FreightFlow Driver - KHCL TMS",
-  "short_name": "FreightFlow",
-  "description": "FreightFlow driver tracking app - A KHCL TMS",
+  "name": "VectrLoadAI Driver - Intelligent Freight Management",
+  "short_name": "VectrLoadAI",
+  "description": "VectrLoadAI driver tracking app - AI-powered freight management",
   "start_url": "/driver",
   "display": "standalone",
   "background_color": "#ffffff",

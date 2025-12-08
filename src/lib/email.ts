@@ -11,7 +11,7 @@ function getResendClient() {
 }
 
 // Configurable branding - set these in .env.local for each deployment
-const COMPANY_NAME = process.env.NEXT_PUBLIC_COMPANY_NAME || 'FreightFlow'
+const COMPANY_NAME = process.env.NEXT_PUBLIC_COMPANY_NAME || 'VectrLoadAI'
 const COMPANY_ADDRESS = process.env.NEXT_PUBLIC_COMPANY_ADDRESS || ''
 const COMPANY_PHONE = process.env.NEXT_PUBLIC_COMPANY_PHONE || ''
 const COMPANY_EMAIL = process.env.NEXT_PUBLIC_COMPANY_EMAIL || ''

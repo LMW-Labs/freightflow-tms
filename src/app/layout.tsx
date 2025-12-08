@@ -14,10 +14,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "FreightFlow - A KHCL TMS",
-    template: "%s | FreightFlow",
+    default: "VectrLoadAI - Intelligent Freight Management",
+    template: "%s | VectrLoadAI",
   },
-  description: "Modern transportation management system for freight brokers. Manage loads, track shipments in real-time, and give your customers visibility with auto-generated portals.",
+  description: "AI-powered transportation management system for freight brokers. Manage loads, track shipments in real-time, optimize margins with intelligent insights, and give your customers visibility with auto-generated portals.",
   keywords: [
     "TMS",
     "transportation management system",
@@ -28,12 +28,13 @@ export const metadata: Metadata = {
     "logistics software",
     "shipment tracking",
     "carrier management",
-    "KHCL",
-    "FreightFlow",
+    "AI logistics",
+    "VectrLoadAI",
+    "intelligent freight",
   ],
-  authors: [{ name: "KHCL" }],
-  creator: "KHCL",
-  publisher: "KHCL",
+  authors: [{ name: "VectrLoadAI" }],
+  creator: "VectrLoadAI",
+  publisher: "VectrLoadAI",
   robots: {
     index: true,
     follow: true,
@@ -41,22 +42,22 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    siteName: "FreightFlow",
-    title: "FreightFlow - A KHCL TMS",
-    description: "Modern transportation management system for freight brokers. Real-time GPS tracking, customer portals, and complete load management.",
+    siteName: "VectrLoadAI",
+    title: "VectrLoadAI - Intelligent Freight Management",
+    description: "AI-powered transportation management system for freight brokers. Real-time GPS tracking, customer portals, intelligent margin optimization, and complete load management.",
     images: [
       {
         url: "/logo.png",
         width: 512,
         height: 512,
-        alt: "FreightFlow Logo",
+        alt: "VectrLoadAI Logo",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "FreightFlow - A KHCL TMS",
-    description: "Modern transportation management system for freight brokers.",
+    title: "VectrLoadAI - Intelligent Freight Management",
+    description: "AI-powered transportation management system for freight brokers.",
     images: ["/logo.png"],
   },
   icons: {
