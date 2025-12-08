@@ -19,6 +19,7 @@ import {
   ClipboardList,
   Settings,
   User,
+  Calculator,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useState } from 'react'
@@ -29,6 +30,7 @@ const navigation = [
   { name: 'Load Requests', href: '/load-requests', icon: ClipboardList },
   { name: 'Customers', href: '/customers', icon: Users },
   { name: 'Carriers', href: '/carriers', icon: Truck },
+  { name: 'Accounting', href: '/accounting', icon: Calculator },
   { name: 'Documents', href: '/documents', icon: FileText },
   { name: 'Live Tracking', href: '/tracking', icon: MapPin },
   { name: 'Team', href: '/team', icon: UserPlus },
