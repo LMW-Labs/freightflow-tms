@@ -7,8 +7,24 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Loader2, Save, Building2, Palette, Mail, FileText } from 'lucide-react'
+import { Loader2, Save, Building2, Palette, Mail, FileText, Tag } from 'lucide-react'
 import { toast } from 'sonner'
+import { StatusColorsTab } from './StatusColorsTab'
+
+// Default status colors
+const defaultStatusColors: Record<string, string> = {
+  quoted: '#6B7280',
+  booked: '#3B82F6',
+  dispatched: '#8B5CF6',
+  en_route_pickup: '#F59E0B',
+  at_pickup: '#F97316',
+  in_transit: '#06B6D4',
+  at_delivery: '#10B981',
+  delivered: '#22C55E',
+  invoiced: '#6366F1',
+  paid: '#059669',
+  cancelled: '#EF4444',
+}
 
 interface Organization {
   id: string
@@ -27,6 +43,7 @@ interface Organization {
   dot_number?: string
   default_payment_terms?: string
   invoice_notes?: string
+  status_colors?: Record<string, string>
 }
 
 export default function SettingsPage() {
@@ -35,6 +52,7 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false)
   const [organization, setOrganization] = useState<Organization | null>(null)
   const [userRole, setUserRole] = useState<string | null>(null)
+  const [statusColors, setStatusColors] = useState<Record<string, string>>(defaultStatusColors)
 
   useEffect(() => {
     async function fetchData() {
@@ -57,6 +75,10 @@ export default function SettingsPage() {
 
         if (org) {
           setOrganization(org)
+          // Load status colors if they exist
+          if (org.status_colors) {
+            setStatusColors({ ...defaultStatusColors, ...org.status_colors })
+          }
         }
       }
       setLoading(false)
@@ -86,6 +108,7 @@ export default function SettingsPage() {
           dot_number: organization.dot_number,
           default_payment_terms: organization.default_payment_terms,
           invoice_notes: organization.invoice_notes,
+          status_colors: statusColors,
         })
         .eq('id', organization.id)
 
@@ -142,7 +165,7 @@ export default function SettingsPage() {
       </div>
 
       <Tabs defaultValue="company" className="space-y-6">
-        <TabsList>
+        <TabsList className="flex-wrap h-auto gap-1">
           <TabsTrigger value="company">
             <Building2 className="h-4 w-4 mr-2" />
             Company
@@ -150,6 +173,10 @@ export default function SettingsPage() {
           <TabsTrigger value="branding">
             <Palette className="h-4 w-4 mr-2" />
             Branding
+          </TabsTrigger>
+          <TabsTrigger value="statuses">
+            <Tag className="h-4 w-4 mr-2" />
+            Status Colors
           </TabsTrigger>
           <TabsTrigger value="billing">
             <FileText className="h-4 w-4 mr-2" />
@@ -339,6 +366,15 @@ export default function SettingsPage() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Status Colors */}
+        <TabsContent value="statuses">
+          <StatusColorsTab
+            statusColors={statusColors}
+            onChange={setStatusColors}
+            disabled={!isAdmin}
+          />
         </TabsContent>
 
         {/* Billing */}

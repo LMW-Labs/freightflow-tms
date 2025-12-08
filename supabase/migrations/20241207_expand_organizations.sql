@@ -19,6 +19,9 @@ ALTER TABLE organizations ADD COLUMN IF NOT EXISTS dot_number TEXT;
 ALTER TABLE organizations ADD COLUMN IF NOT EXISTS default_payment_terms TEXT;
 ALTER TABLE organizations ADD COLUMN IF NOT EXISTS invoice_notes TEXT;
 
+-- Add status colors (JSONB for flexible color configuration)
+ALTER TABLE organizations ADD COLUMN IF NOT EXISTS status_colors JSONB DEFAULT '{}'::jsonb;
+
 -- Add updated_at timestamp
 ALTER TABLE organizations ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
 
