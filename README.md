@@ -73,7 +73,7 @@ An AI-powered Transportation Management System (TMS) for freight brokers. Built 
 | Icons | Lucide React |
 | Hosting | Vercel |
 | Integrations | QuickBooks, DAT, Truckstop, Highway, Macropoint, Denim |
-| AI (Phase 2) | OpenAI, Anthropic Claude |
+| AI | Anthropic Claude (@anthropic-ai/sdk) |
 
 ---
 
@@ -646,70 +646,41 @@ Configure webhook endpoints in your integration settings:
 
 ---
 
-## Phase 2: AI Integration (Coming Soon)
+## AI Features
 
-The next major phase introduces AI capabilities to **increase margins** and **reduce admin time**.
+Five features built on the Anthropic SDK in `src/lib/ai/`, each exposed as an API route under `/api/ai/`. Model choice is per feature - Sonnet where reasoning or vision is required, Haiku where latency matters more than depth.
 
-### AI-Powered Features
+| Feature | Route | Model | What it does |
+|---------|-------|-------|--------------|
+| Document extraction | `/api/ai/extract-document` | Sonnet (vision) | Reads load numbers, amounts, dates and addresses off BOLs, PODs and carrier invoices |
+| Rate quoting | `/api/ai/rate-quote` | Sonnet | Lane pricing from stored rate lookups and current market data |
+| Carrier matching | `/api/ai/carrier-match` | Sonnet | Ranks carriers for a lane against rate history, equipment, location and safety scores |
+| Email drafting | `/api/ai/email-draft` | Haiku | Drafts rate confirmations and milestone updates from load data |
+| Operator alerts | `/api/ai/alerts` | Haiku | Surfaces expiring insurance, authority changes and out-of-band rate requests |
 
-#### 1. Smart Rate Suggestions
-- Analyze historical rate data from DAT/Truckstop
-- Lane-based pricing recommendations based on market trends
-- Margin optimization suggestions (when to negotiate, when to accept)
-- Predict market rate movements for better timing
+### Cost accounting
 
-#### 2. Automated Document Processing
-- OCR extraction from BOLs, PODs, carrier invoices
-- Auto-extract: load numbers, amounts, dates, addresses
-- Automatically match documents to correct loads
-- Flag discrepancies between documents and load data
-- Reduce manual data entry by 80%+
+Every request is written to the `ai_logs` table with feature, model, input and output token counts, and computed cost. Rates live in a table in `src/lib/ai/core/types.ts`, so per-organization spend is queryable rather than estimated.
 
-#### 3. AI-Powered Carrier Matching
-- Recommend best carriers for each lane based on:
-  - Historical rates and reliability
-  - Equipment availability
-  - Current location
-  - Safety scores and insurance status
-- Predict carrier availability before reaching out
-- Optimize carrier-load assignments for fleet utilization
+### Layout
 
-#### 4. Invoice Automation
-- Auto-generate invoices from delivered loads
-- Smart document package assembly (invoice + BOL + POD)
-- Automated factoring submission with audit trail
-- Payment reminder scheduling based on customer history
-
-#### 5. Load Optimization
-- Suggest optimal routing for multi-stop loads
-- Identify consolidation opportunities
-- Minimize deadhead miles with backhaul suggestions
-- Fuel cost optimization based on routes and fuel prices
-
-#### 6. Communication Automation
-- Auto-generate rate confirmations from load data
-- Carrier booking confirmations with all required details
-- Customer load updates at key milestones
-- Tracking notification emails to stakeholders
-- Smart email templates that learn your tone
-
-#### 7. Anomaly Detection
-- Flag unusual rate requests (too high/low for lane)
-- Detect potential fraud patterns in documents
-- Insurance expiration warnings before loads are booked
-- Authority status alerts (carrier went inactive)
-- Double-brokering risk detection
-
-### AI Environment Variables
-
-```env
-# AI Providers (Phase 2)
-OPENAI_API_KEY=sk-...
-ANTHROPIC_API_KEY=sk-ant-...
+```
+src/lib/ai/
+core/
+  client.ts       Lazy Anthropic client, retry, timeout, token accounting
+  prompts.ts      System prompts per feature
+  types.ts        Feature enum, model map, cost table
+features/
+  document-extraction.ts
+  rate-quoting.ts
+  carrier-matching.ts
+  email-drafting.ts
+  alerts.ts
 ```
 
----
+ANTHROPIC_API_KEY is read server-side only. The client throws on first use if it is unset rather than failing partway through a request.
 
+---
 ## Security
 
 ### Row Level Security (RLS)
@@ -745,24 +716,27 @@ All tables have RLS policies ensuring:
 - [x] Document audit workflow for factoring
 - [x] Integration framework with encryption
 
-### Completed - Phase 1 Integrations
+### Completed - Integrations
 - [x] Integration settings UI and API routes
-- [x] QuickBooks Online (OAuth2, customer/invoice sync)
-- [x] DAT Load Board (market rates with 4-hour caching)
-- [ ] Truckstop (market rates, load posting) - Similar to DAT
-- [x] Highway (carrier vetting, insurance verification)
-- [x] Macropoint (real-time GPS tracking, webhooks)
+- [x] QuickBooks Online (OAuth2, customer and invoice sync, carrier bills)
+- [x] DAT Load Board (market rates, 4-hour cache)
+- [x] Highway (carrier vetting, MC/DOT authority, insurance verification)
+- [x] Macropoint (GPS tracking sessions, location webhooks)
 - [x] Denim (carrier payments, QuickPay, batch payments)
+- [ ] Truckstop (market rates, load posting)
 
-### Future - Phase 2 AI Integration
-- [ ] Smart rate suggestions with margin optimization
-- [ ] Automated document processing (OCR)
-- [ ] AI-powered carrier matching
-- [ ] Invoice automation
-- [ ] Load optimization and routing
-- [ ] Communication automation
-- [ ] Anomaly detection and fraud prevention
+### Completed - AI
+- [x] Document extraction from carrier paperwork
+- [x] Rate quoting
+- [x] Carrier matching and ranking
+- [x] Rate confirmation and milestone email drafting
+- [x] Operator alerts
+- [x] Per-request token and cost logging
 
+### Future
+- [ ] Multi-stop routing and load consolidation
+- [ ] Anomaly and double-brokering detection
+- [ ] End-to-end invoice automation
 ### Future Enhancements
 - [ ] SMS alerts for drivers
 - [ ] Route optimization
@@ -849,4 +823,4 @@ This project is open source and available under the [MIT License](LICENSE).
 
 **VectrLoadAI** - Intelligent Freight Management
 
-Built with AI assistance to prove that the future of software development is accessible to everyone.
+
